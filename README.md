@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a Next.js crypto analytics dashboard. CoinGecko requests go through the
+server-side `/api/coingecko` proxy so the API key is never shipped to the browser.
+
+## Environment variables
+
+Copy `.env.example` to `.env.local` for local development and set
+`COINGECKO_API_KEY` to your CoinGecko Demo key. In Vercel, add the same variable
+under **Project Settings → Environment Variables** for Preview and Production.
+
+Do not prefix this variable with `NEXT_PUBLIC_`, commit `.env.local`, or paste the
+key into client-side code.
 
 ## Getting Started
 

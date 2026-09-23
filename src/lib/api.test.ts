@@ -3,7 +3,7 @@ import { getMarketsUrl, normalizeChartData } from "./api";
 
 describe("CoinGecko API contracts", () => {
   it("builds a USD market query with the requested page", () => {
-    const url = new URL(getMarketsUrl({ page: 2, perPage: 10, ids: ["bitcoin"] }));
+    const url = new URL(getMarketsUrl({ page: 2, perPage: 10, ids: ["bitcoin"] }), "http://localhost");
 
     expect(url.searchParams.get("vs_currency")).toBe("usd");
     expect(url.searchParams.get("page")).toBe("2");

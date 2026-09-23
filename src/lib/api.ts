@@ -1,6 +1,6 @@
 import type { ChartPoint, ChartResponse, CoinDetail, MarketCoin } from "./types";
 
-export const API_BASE_URL = "https://api.coingecko.com/api/v3";
+export const API_BASE_URL = "/api/coingecko";
 
 export class ApiError extends Error {
   status: number;
