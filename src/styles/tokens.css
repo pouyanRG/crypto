@@ -1,0 +1,56 @@
+/**
+ * Design Tokens — single source of truth for color, spacing, radius and
+ * typography across the app. Never hardcode a color or font elsewhere;
+ * always reference these tokens (via Tailwind's `@theme inline` mapping
+ * in globals.css, or directly as `var(--token-name)`).
+ */
+
+:root {
+  /* ---- Surfaces (dark theme, default & only theme) ---- */
+  --color-bg: #0b0e14;
+  --color-bg-elevated: #10141c;
+  --color-surface: #141924;
+  --color-surface-hover: #1a2030;
+  --color-border: #232a3a;
+  --color-border-subtle: #1a2030;
+
+  /* ---- Text ---- */
+  --color-text-primary: #e8ebf1;
+  --color-text-secondary: #9aa4b8;
+  --color-text-muted: #626d82;
+
+  /* ---- Brand / accent ---- */
+  --color-accent: #5b8def;
+  --color-accent-muted: #26314a;
+
+  /* ---- Market status (industry standard: green up, red down) ---- */
+  --color-up: #22c55e;
+  --color-up-muted: #16321f;
+  --color-down: #ef4444;
+  --color-down-muted: #351a1a;
+  --color-neutral: #9aa4b8;
+
+  /* ---- Radius ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  /* ---- Spacing scale (used alongside Tailwind's defaults) ---- */
+  --space-card-padding: 1.25rem;
+  --space-section-gap: 1.5rem;
+
+  /* ---- Typography ---- */
+  /* --font-sans / --font-mono are set from next/font in layout.jsx */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: 2.75rem;
+
+  /* ---- Elevation ---- */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.24);
+}
