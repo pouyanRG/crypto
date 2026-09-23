@@ -55,3 +55,10 @@ export interface ChartResponse {
 export interface WatchlistState {
   ids: string[];
 }
+
+export interface PortfolioAsset {
+  id: string;
+  amount: number;
+  buyPrice: number;
+  purchasedAt?: string;
+}

@@ -12,8 +12,8 @@ export class ApiError extends Error {
   }
 }
 
-export async function fetcher<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+export async function fetcher<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, options);
   if (!response.ok) {
     let message = `CoinGecko request failed (${response.status})`;
 

@@ -1,10 +1,21 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useAppStore } from "../lib/store/useAppStore";
 
 interface ProvidersProps {
   children: ReactNode;
+}
+
+function ThemeProvider({ children }: ProvidersProps) {
+  const theme = useAppStore((state) => state.theme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  return children;
 }
 
 export default function Providers({ children }: ProvidersProps) {
@@ -21,5 +32,9 @@ export default function Providers({ children }: ProvidersProps) {
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>{children}</ThemeProvider>
+    </QueryClientProvider>
+  );
 }

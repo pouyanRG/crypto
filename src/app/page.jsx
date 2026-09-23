@@ -9,7 +9,7 @@ export default function Home() {
           Crypto Analytics Dashboard
         </h1>
         <p className="text-[var(--color-text-secondary)] mb-6">
-          Next.js + Tailwind + SWR + Recharts are installed and the design
+          Next.js + Tailwind + TanStack Query + Recharts are installed and the design
           tokens are wired up. Dashboard content lands in Phase 6.
         </p>
         <div className="flex items-center gap-4 font-tabular text-lg">

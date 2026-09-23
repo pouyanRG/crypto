@@ -130,10 +130,19 @@
 
 ### فاز ۲ — Core Data and Persistence
 
+فاز ۲ به دو بخش مستقل تقسیم می‌شود. بخش ۲ فقط پس از تأیید کاربر آغاز می‌شود.
+
+#### بخش ۱ — Core Data Queries
+
 - queryهای market، coin detail و historical chart با TanStack Query
 - stale time، retry، refresh و cache policy مناسب CoinGecko
+- پشتیبانی از cancellation درخواست‌ها با `AbortSignal`
+
+#### بخش ۲ — Client Persistence
+
 - storeهای Zustand برای theme، watchlist و portfolio
 - adapter مقاوم برای `localStorage`
+- بازیابی امن state در محیط browser و handling داده‌ی خراب یا قدیمی
 
 ### فاز ۳ — Shared UI System
 
