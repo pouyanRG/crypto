@@ -1,4 +1,5 @@
 import { Inter, JetBrains_Mono } from "next/font/google";
+import Providers from "./providers";
 import "../styles/tokens.css";
 import "./globals.css";
 
@@ -31,7 +32,7 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-text-primary)] font-sans">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

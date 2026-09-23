@@ -6,7 +6,9 @@
  */
 
 :root {
-  /* ---- Surfaces (dark theme, default & only theme) ---- */
+  color-scheme: dark;
+
+  /* ---- Surfaces (dark theme, default) ---- */
   --color-bg: #0b0e14;
   --color-bg-elevated: #10141c;
   --color-surface: #141924;
@@ -53,4 +55,25 @@
 
   /* ---- Elevation ---- */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f6fa;
+  --color-bg-elevated: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #eef2f8;
+  --color-border: #d9e0eb;
+  --color-border-subtle: #e8edf4;
+  --color-text-primary: #172033;
+  --color-text-secondary: #536078;
+  --color-text-muted: #7d899e;
+  --color-accent: #356bd8;
+  --color-accent-muted: #e1eafd;
+  --color-up: #168542;
+  --color-up-muted: #e2f5e8;
+  --color-down: #c93636;
+  --color-down-muted: #fbe6e6;
+  --color-neutral: #536078;
+  --shadow-card: 0 1px 2px rgba(23, 32, 51, 0.08), 0 8px 24px rgba(23, 32, 51, 0.08);
 }
