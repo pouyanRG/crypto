@@ -14,11 +14,13 @@ export async function GET(request: Request, context: RouteContext) {
   const incomingUrl = new URL(request.url);
   const upstreamUrl = `${COINGECKO_API_URL}/${path.map(encodeURIComponent).join("/")}${incomingUrl.search}`;
   const headers = new Headers({ Accept: "application/json" });
-  const apiKey = process.env.COINGECKO_API_KEY;
+  const apiKey = process.env.COINGECKO_API_KEY?.trim();
 
-  if (apiKey) {
-    headers.set("x-cg-demo-api-key", apiKey);
+  if (!apiKey) {
+    return Response.json({ error: "CoinGecko API key is not configured" }, { status: 500 });
   }
+
+  headers.set("x-cg-demo-api-key", apiKey);
 
   try {
     const response = await fetch(upstreamUrl, { headers, cache: "no-store" });
