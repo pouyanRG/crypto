@@ -286,7 +286,7 @@ export default function DashboardContent() {
         </Card>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]" aria-label="Watchlist and portfolio context">
+      <section className="grid gap-4" aria-label="Watchlist and portfolio context">
         <Card>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
