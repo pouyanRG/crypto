@@ -258,7 +258,6 @@ button:disabled {
   justify-content: center;
   background: rgba(255, 255, 255, 0);
   color: var(--color-text-primary);
-  border: 1px solid rgba(59, 130, 246, 0.15);
   font-size: 0.65rem;
   font-weight: 700;
 }
