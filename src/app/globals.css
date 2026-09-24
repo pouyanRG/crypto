@@ -33,8 +33,56 @@
   --font-mono: var(--font-mono);
 }
 
+html {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 34%),
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.22);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .app-shell {
@@ -43,24 +91,197 @@ body {
   flex-direction: column;
 }
 
+.app-content {
+  width: min(1200px, calc(100% - 2rem));
+}
+
 .skip-link {
   position: fixed;
   left: 1rem;
   top: 1rem;
-  z-index: 50;
+  z-index: 60;
   transform: translateY(-200%);
   border-radius: var(--radius-md);
   background: var(--color-accent);
   color: white;
   padding: 0.625rem 0.875rem;
+  box-shadow: var(--shadow-float);
 }
 
 .skip-link:focus {
   transform: translateY(0);
 }
 
-/* Numbers/prices should default to the monospace face for readability */
 .font-tabular {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+}
+
+.dashboard-shell {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: rgba(148, 163, 184, 0.04);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.kicker-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-up);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.7), transparent);
+  opacity: 0.7;
+}
+
+.market-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.market-panel {
+  grid-column: span 8;
+}
+
+.market-side {
+  grid-column: span 4;
+}
+
+@media (max-width: 960px) {
+  .market-panel,
+  .market-side {
+    grid-column: span 12;
+  }
+}
+
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.market-table th,
+.market-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+
+.market-table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.market-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.market-table tbody tr:hover {
+  background: rgba(148, 163, 184, 0.02);
+}
+
+.price-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  border-radius: var(--radius-pill);
+  padding: 0.38rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.price-pill.up {
+  background: var(--color-up-muted);
+  color: var(--color-up);
+}
+
+.price-pill.down {
+  background: var(--color-down-muted);
+  color: var(--color-down);
+}
+
+.coin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.coin-mark {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(59, 130, 246, 0.06));
+  color: var(--color-text-primary);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.muted-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.muted-list li + li {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

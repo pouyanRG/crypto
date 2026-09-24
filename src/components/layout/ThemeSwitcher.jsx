@@ -10,14 +10,14 @@ export default function ThemeSwitcher() {
 
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       size="sm"
       aria-label={`Switch to ${nextTheme} theme`}
       title={`Switch to ${nextTheme} theme`}
-      className="min-h-11"
+      className="min-h-10 rounded-[var(--radius-md)] px-3"
       onClick={() => setTheme(nextTheme)}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      {theme === "dark" ? "Light mode" : "Dark mode"}
     </Button>
   );
 }

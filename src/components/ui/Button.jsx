@@ -3,11 +3,11 @@
 import clsx from "clsx";
 
 const VARIANTS = {
-  primary: "bg-[var(--color-accent)] text-white hover:opacity-90",
-  secondary: "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
+  primary: "border border-transparent bg-[var(--color-accent)] text-white shadow-[0_10px_20px_rgba(59,130,246,0.22)] hover:-translate-y-0.5 hover:bg-[var(--color-accent)] active:translate-y-0",
+  secondary: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] hover:-translate-y-0.5 active:translate-y-0",
   outline: "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
   ghost: "bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
-  destructive: "bg-[var(--color-down)] text-white hover:opacity-90",
+  destructive: "border border-transparent bg-[var(--color-down)] text-white hover:opacity-90",
 };
 
 const SIZES = {
@@ -26,7 +26,7 @@ export default function Button({ variant = "primary", size = "md", loading = fal
       aria-busy={loading ? "true" : undefined}
       disabled={disabled || loading}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition-colors active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition-all duration-200 ease-out active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
         VARIANTS[variant] ?? VARIANTS.primary,
         SIZES[size] ?? SIZES.md,
         className,
