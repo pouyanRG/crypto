@@ -2,6 +2,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import Providers from "./providers";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import MobileTabBar from "../components/layout/MobileTabBar";
 import "../styles/tokens.css";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export const metadata = {
 export const viewport = {
   colorScheme: "dark light",
   themeColor: "#0b0e14",
+  viewportFit: "cover",
 };
 
 const themeScript = `
@@ -62,6 +64,7 @@ export default function RootLayout({ children }) {
               {children}
             </main>
             <Footer />
+            <MobileTabBar />
           </div>
         </Providers>
       </body>

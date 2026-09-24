@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "../ui/Button";
+import NavIcon from "./NavIcon";
 import { useAppStore } from "../../lib/store/useAppStore";
 
 export default function ThemeSwitcher() {
@@ -9,15 +9,14 @@ export default function ThemeSwitcher() {
   const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
-    <Button
-      variant="secondary"
-      size="sm"
+    <button
+      type="button"
       aria-label={`Switch to ${nextTheme} theme`}
       title={`Switch to ${nextTheme} theme`}
-      className="control-min-height rounded-[var(--radius-md)] px-3"
+      className="inline-flex size-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
       onClick={() => setTheme(nextTheme)}
     >
-      {theme === "dark" ? "Light mode" : "Dark mode"}
-    </Button>
+      <NavIcon name={theme === "dark" ? "sun" : "moon"} />
+    </button>
   );
 }

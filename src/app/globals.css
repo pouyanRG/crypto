@@ -90,6 +90,12 @@ button:disabled {
   flex-direction: column;
 }
 
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 .app-content {
   width: min(1200px, calc(100% - 2rem));
 }

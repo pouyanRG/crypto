@@ -3,35 +3,35 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const LINKS = [{ href: "/", label: "Dashboard" }, { href: "/market", label: "Markets" }, { href: "/watchlist", label: "Watchlist" }, { href: "/portfolio", label: "Portfolio" }, { href: "/compare", label: "Compare" }];
+import { NAV_LINKS, isActivePath } from "./navLinks";
 
 export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Primary navigation" className="order-3 min-w-0 basis-full overflow-x-auto sm:order-none sm:basis-auto">
-      <div className="flex items-center gap-1 border-l border-[var(--color-border)] pl-3">
-        {LINKS.map((link) => {
-          const isActive = link.href === "/" ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
+    <nav aria-label="Primary navigation" className="hidden md:block">
+      <ul className="flex items-center gap-1">
+        {NAV_LINKS.map((link) => {
+          const isActive = isActivePath(pathname, link.href);
 
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={isActive ? "page" : undefined}
-              className={clsx(
-                "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-sm)] px-2.5 py-1.5 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
-                isActive
-                  ? "bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
-                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
-              )}
-            >
-              {link.label}
-            </Link>
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className={clsx(
+                  "inline-flex h-9 items-center rounded-[var(--radius-md)] px-3 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
+                  isActive
+                    ? "bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
+                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
+                )}
+              >
+                {link.label}
+              </Link>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </nav>
   );
 }
