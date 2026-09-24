@@ -1,4 +1,4 @@
-import type { ChartPoint, ChartResponse, CoinDetail, MarketCoin } from "./types";
+import type { ChartPoint, ChartResponse, CoinDetail, GlobalMarketChartResponse, MarketCoin } from "./types";
 
 export const API_BASE_URL = "/api/coingecko";
 
@@ -56,8 +56,17 @@ export function getCoinChartUrl(id: string, days = 30): string {
   return `${API_BASE_URL}/coins/${encodeURIComponent(id)}/market_chart?${params}`;
 }
 
+export function getGlobalMarketChartUrl(days = 30): string {
+  const params = new URLSearchParams({ vs_currency: "usd", days: String(days) });
+  return `${API_BASE_URL}/global/market_cap_chart?${params}`;
+}
+
 export function normalizeChartData(chart: ChartResponse | undefined): ChartPoint[] {
   return (chart?.prices ?? []).filter(([timestamp, price]) => Number.isFinite(timestamp) && Number.isFinite(price)).map(([timestamp, price]) => ({ timestamp, price }));
 }
 
-export type { ChartPoint, CoinDetail, MarketCoin } from "./types";
+export function normalizeGlobalSeries(series: [number, number][] | undefined): ChartPoint[] {
+  return (series ?? []).filter(([timestamp, value]) => Number.isFinite(timestamp) && Number.isFinite(value)).map(([timestamp, value]) => ({ timestamp, price: value }));
+}
+
+export type { ChartPoint, CoinDetail, GlobalMarketChartResponse, MarketCoin } from "./types";

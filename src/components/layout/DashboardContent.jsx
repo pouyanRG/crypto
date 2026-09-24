@@ -10,6 +10,9 @@ import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
 import Sparkline from "../market/Sparkline";
+import MarketMetricChart from "../widgets/MarketMetricChart";
+import useGlobalMarketChart from "../../lib/hooks/useGlobalMarketChart";
+import { normalizeGlobalSeries } from "../../lib/api";
 
 function TrendArrow({ positive }) {
   return (
@@ -37,6 +40,7 @@ export default function DashboardContent() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showHighlights, setShowHighlights] = useState(true);
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
+  const { data: globalChart, isLoading: isGlobalChartLoading, isError: isGlobalChartError } = useGlobalMarketChart(30);
   const coins = data ?? [];
   const featured = isExpanded ? coins : coins.slice(0, 3);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
@@ -46,9 +50,9 @@ export default function DashboardContent() {
   const trending = coins.slice(0, 3);
   const averageMove =
     coins.reduce((sum, coin) => sum + (Number(coin.price_change_percentage_24h) || 0), 0) / Math.max(coins.length, 1);
-  const highlightTrend = Array.from({ length: 24 }, (_, index) => ({
-    value: coins.reduce((sum, coin) => sum + (coin.sparkline_in_7d?.price?.[index] ?? coin.current_price ?? 0), 0),
-  }));
+  const marketCapTrend = normalizeGlobalSeries(globalChart?.market_cap_chart?.market_cap).map(({ timestamp, price }) => ({ timestamp, value: price }));
+  const volumeTrend = normalizeGlobalSeries(globalChart?.market_cap_chart?.volume).map(({ timestamp, price }) => ({ timestamp, value: price }));
+  const getCoinSparkline = (coin) => (coin.sparkline_in_7d?.price ?? []).map((value) => ({ value }));
 
   return (
     <div className="dashboard-shell py-6 sm:py-8">
@@ -99,7 +103,7 @@ export default function DashboardContent() {
                       Market Cap <span className={averageMove >= 0 ? "text-[var(--color-up)]" : "text-[var(--color-down)]"}>{averageMove >= 0 ? "▲" : "▼"} {Math.abs(averageMove).toFixed(2)}%</span>
                     </p>
                   </div>
-                  <Sparkline data={highlightTrend} positive={averageMove >= 0} />
+                  {isGlobalChartLoading ? <Skeleton variant="row" className="h-24 w-40" /> : isGlobalChartError ? <span className="text-xs text-[var(--color-down)]">Chart unavailable</span> : <MarketMetricChart data={marketCapTrend} dataKey="value" color="var(--color-down)" label="Market cap" />}
                 </div>
               </Card>
 
@@ -111,7 +115,7 @@ export default function DashboardContent() {
                     </p>
                     <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">24h Trading Volume</p>
                   </div>
-                  <Sparkline data={highlightTrend} positive={false} />
+                  {isGlobalChartLoading ? <Skeleton variant="row" className="h-24 w-40" /> : isGlobalChartError ? <span className="text-xs text-[var(--color-down)]">Chart unavailable</span> : <MarketMetricChart data={volumeTrend} dataKey="value" color="var(--color-down)" label="24h trading volume" />}
                 </div>
               </Card>
             </div>
@@ -193,6 +197,7 @@ export default function DashboardContent() {
                   <th>7d</th>
                   <th>Volume</th>
                   <th>Market Cap</th>
+                  <th>7d Trend</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,6 +235,7 @@ export default function DashboardContent() {
                     </td>
                     <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
                     <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
+                    <td><Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></td>
                   </tr>
                 ))}
               </tbody>

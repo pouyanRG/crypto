@@ -52,6 +52,13 @@ export interface ChartResponse {
   prices?: [number, number][];
 }
 
+export interface GlobalMarketChartResponse {
+  market_cap_chart?: {
+    market_cap?: [number, number][];
+    volume?: [number, number][];
+  };
+}
+
 export interface WatchlistState {
   ids: string[];
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getMarketsUrl, normalizeChartData } from "./api";
+import { getGlobalMarketChartUrl, getMarketsUrl, normalizeChartData } from "./api";
 import { isChartResponse, isMarketCoin } from "./types";
 
 describe("CoinGecko API contracts", () => {
@@ -17,6 +17,14 @@ describe("CoinGecko API contracts", () => {
       { timestamp: 1000, price: 42 },
       { timestamp: 2000, price: 44 },
     ]);
+  });
+
+  it("builds the real global market chart query", () => {
+    const url = new URL(getGlobalMarketChartUrl(30), "http://localhost");
+
+    expect(url.pathname).toBe("/api/coingecko/global/market_cap_chart");
+    expect(url.searchParams.get("vs_currency")).toBe("usd");
+    expect(url.searchParams.get("days")).toBe("30");
   });
 
   it("accepts partial CoinGecko records and rejects malformed shapes", () => {
