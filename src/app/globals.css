@@ -197,18 +197,11 @@ button:disabled {
 }
 
 .market-panel {
-  grid-column: span 8;
+  grid-column: span 12;
 }
 
 .market-side {
-  grid-column: span 4;
-}
-
-@media (max-width: 960px) {
-  .market-panel,
-  .market-side {
-    grid-column: span 12;
-  }
+  grid-column: span 12;
 }
 
 .market-table {
