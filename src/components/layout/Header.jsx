@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Nav from "./Nav";
 import ThemeSwitcher from "./ThemeSwitcher";
-import DataSourceStatus from "./DataSourceStatus";
+import LiveDataSourceStatus from "./LiveDataSourceStatus";
 
 function BrandMark() {
   return (
@@ -14,14 +14,14 @@ function BrandMark() {
 export default function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-3 text-base font-semibold text-[var(--color-text-primary)] transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]">
           <BrandMark />
           <span className="tracking-[-0.02em]">Northstar Ledger</span>
         </Link>
         <Nav />
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <DataSourceStatus />
+          <LiveDataSourceStatus />
           <ThemeSwitcher />
         </div>
       </div>

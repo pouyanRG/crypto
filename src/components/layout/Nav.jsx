@@ -21,7 +21,7 @@ export default function Nav() {
               href={link.href}
               aria-current={isActive ? "page" : undefined}
               className={clsx(
-                "inline-flex min-h-9 shrink-0 items-center rounded-[var(--radius-sm)] px-2.5 py-1.5 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
+                "inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-sm)] px-2.5 py-1.5 text-sm font-medium transition-colors duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
                 isActive
                   ? "bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
                   : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",

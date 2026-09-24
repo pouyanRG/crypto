@@ -14,7 +14,7 @@ export default function ThemeSwitcher() {
       size="sm"
       aria-label={`Switch to ${nextTheme} theme`}
       title={`Switch to ${nextTheme} theme`}
-      className="min-h-10 rounded-[var(--radius-md)] px-3"
+      className="control-min-height rounded-[var(--radius-md)] px-3"
       onClick={() => setTheme(nextTheme)}
     >
       {theme === "dark" ? "Light mode" : "Dark mode"}

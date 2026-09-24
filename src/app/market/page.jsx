@@ -8,17 +8,14 @@ export const metadata = {
 
 export default function MarketPage() {
   return (
-    <section className="flex min-h-[50vh] items-center justify-center">
+    <section className="space-y-5">
       <Card className="w-full max-w-md">
-        <p className="text-sm text-[var(--color-text-secondary)] mb-2">
-          Phase 2 — Folder structure
-        </p>
         <h1 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-4">
           Markets
         </h1>
         <p className="text-[var(--color-text-secondary)]">
-          Route scaffolded. The full market table, tabs, search, and
-          watchlist star button land in Phase 7.
+          The market workspace is being built on the shared shell. Use the
+          dashboard for the current tracked-market snapshot.
         </p>
       </Card>
     </section>

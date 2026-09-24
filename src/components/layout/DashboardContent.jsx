@@ -4,21 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
+import { formatCompact, formatPrice } from "../../lib/formatters";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
-
-const priceFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 2,
-});
-
-const compactFormatter = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-  maximumFractionDigits: 2,
-});
 
 function TrendArrow({ positive }) {
   return (
@@ -75,13 +65,13 @@ export default function DashboardContent() {
         {[
           {
             label: "Total market cap",
-            value: isLoading ? null : priceFormatter.format(marketCap),
+            value: isLoading ? null : formatPrice(marketCap),
             change: "+2.84%",
             positive: true,
           },
           {
             label: "24h volume",
-            value: isLoading ? null : priceFormatter.format(volume),
+            value: isLoading ? null : formatPrice(volume),
             change: "+6.18%",
             positive: true,
           },
@@ -163,14 +153,14 @@ export default function DashboardContent() {
                         </div>
                       </div>
                     </td>
-                    <td className="font-tabular text-[var(--color-text-primary)]">{priceFormatter.format(coin.current_price)}</td>
+                    <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
                     <td>
                       <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
                         {coin.price_change_percentage_24h >= 0 ? "+" : ""}
                         {Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
                       </span>
                     </td>
-                    <td className="font-tabular text-[var(--color-text-secondary)]">{compactFormatter.format(coin.total_volume ?? 0)}</td>
+                    <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -247,7 +237,7 @@ export default function DashboardContent() {
                   </span>
                 </div>
                 <div className="mt-4 font-tabular text-xl font-semibold text-[var(--color-text-primary)]">
-                  {priceFormatter.format(coin.current_price)}
+                  {formatPrice(coin.current_price)}
                 </div>
               </div>
             ))}
@@ -264,7 +254,7 @@ export default function DashboardContent() {
             <div className="text-sm text-[var(--color-text-secondary)]">Bitcoin reference</div>
             <div className="mt-2 flex items-center justify-between gap-3">
               <span className="font-tabular text-xl font-semibold text-[var(--color-text-primary)]">
-                {bitcoin ? priceFormatter.format(bitcoin.current_price) : "—"}
+                {bitcoin ? formatPrice(bitcoin.current_price) : "—"}
               </span>
               <span className={`price-pill ${bitcoin && bitcoin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
                 {bitcoin ? `${bitcoin.price_change_percentage_24h >= 0 ? "+" : ""}${Number(bitcoin.price_change_percentage_24h || 0).toFixed(2)}%` : "—"}

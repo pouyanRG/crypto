@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getMarketsUrl, normalizeChartData } from "./api";
+import { isChartResponse, isMarketCoin } from "./types";
 
 describe("CoinGecko API contracts", () => {
   it("builds a USD market query with the requested page", () => {
@@ -16,5 +17,12 @@ describe("CoinGecko API contracts", () => {
       { timestamp: 1000, price: 42 },
       { timestamp: 2000, price: 44 },
     ]);
+  });
+
+  it("accepts partial CoinGecko records and rejects malformed shapes", () => {
+    expect(isMarketCoin({ id: "bitcoin", symbol: "btc", name: "Bitcoin" })).toBe(true);
+    expect(isMarketCoin({ id: "bitcoin" })).toBe(false);
+    expect(isChartResponse({ prices: [[1000, 42]] })).toBe(true);
+    expect(isChartResponse({ prices: [[1000]] })).toBe(false);
   });
 });

@@ -57,7 +57,7 @@ export function getCoinChartUrl(id: string, days = 30): string {
 }
 
 export function normalizeChartData(chart: ChartResponse | undefined): ChartPoint[] {
-  return (chart?.prices ?? []).map(([timestamp, price]) => ({ timestamp, price }));
+  return (chart?.prices ?? []).filter(([timestamp, price]) => Number.isFinite(timestamp) && Number.isFinite(price)).map(([timestamp, price]) => ({ timestamp, price }));
 }
 
 export type { ChartPoint, CoinDetail, MarketCoin } from "./types";
