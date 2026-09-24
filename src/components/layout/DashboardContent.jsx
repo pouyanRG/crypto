@@ -9,6 +9,7 @@ import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
+import Sparkline from "../market/Sparkline";
 
 function TrendArrow({ positive }) {
   return (
@@ -43,6 +44,11 @@ export default function DashboardContent() {
   const marketCap = coins.reduce((sum, coin) => sum + (coin.market_cap ?? 0), 0);
   const volume = coins.reduce((sum, coin) => sum + (coin.total_volume ?? 0), 0);
   const trending = coins.slice(0, 3);
+  const averageMove =
+    coins.reduce((sum, coin) => sum + (Number(coin.price_change_percentage_24h) || 0), 0) / Math.max(coins.length, 1);
+  const highlightTrend = Array.from({ length: 24 }, (_, index) => ({
+    value: coins.reduce((sum, coin) => sum + (coin.sparkline_in_7d?.price?.[index] ?? coin.current_price ?? 0), 0),
+  }));
 
   return (
     <div className="dashboard-shell py-6 sm:py-8">
@@ -81,53 +87,71 @@ export default function DashboardContent() {
         </div>
 
         {showHighlights && (
-          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4" aria-label="Key market metrics">
-            <Card className="metric-card">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">Trending</h2>
-                <span aria-hidden="true">🔥</span>
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-3" aria-label="Key market metrics">
+            <div className="hidden flex-col gap-4 xl:flex">
+              <Card className="metric-card min-h-[132px]">
+                <div className="flex items-center justify-between gap-6">
+                  <div className="min-w-0">
+                    <p className="font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
+                      {isLoading ? <Skeleton variant="text" className="w-32" /> : formatPrice(marketCap)}
+                    </p>
+                    <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">
+                      Market Cap <span className={averageMove >= 0 ? "text-[var(--color-up)]" : "text-[var(--color-down)]"}>{averageMove >= 0 ? "▲" : "▼"} {Math.abs(averageMove).toFixed(2)}%</span>
+                    </p>
+                  </div>
+                  <Sparkline data={highlightTrend} positive={averageMove >= 0} />
+                </div>
+              </Card>
+
+              <Card className="metric-card min-h-[132px]">
+                <div className="flex items-center justify-between gap-6">
+                  <div className="min-w-0">
+                    <p className="font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
+                      {isLoading ? <Skeleton variant="text" className="w-32" /> : formatPrice(volume)}
+                    </p>
+                    <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">24h Trading Volume</p>
+                  </div>
+                  <Sparkline data={highlightTrend} positive={false} />
+                </div>
+              </Card>
+            </div>
+
+            <Card className="metric-card min-h-[280px]">
+              <div className="mb-5 flex items-center justify-between gap-2">
+                <h2 className="text-xl font-semibold text-[var(--color-text-primary)]"><span aria-hidden="true">🔥 </span>Trending</h2>
+                <button type="button" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></button>
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-muted)]">Most watched by the market</p>
               <ul className="mt-4 space-y-3">
                 {trending.map((coin) => (
                   <li key={coin.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] text-xs font-semibold text-[var(--color-text-secondary)]">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                      <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    </span>
                     <span className="shrink-0 font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</span>
                   </li>
                 ))}
               </ul>
             </Card>
 
-            <Card className="metric-card">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">Top Gainers</h2>
-                <span aria-hidden="true">🚀</span>
+            <Card className="metric-card min-h-[280px]">
+              <div className="mb-5 flex items-center justify-between gap-2">
+                <h2 className="text-xl font-semibold text-[var(--color-text-primary)]"><span aria-hidden="true">🚀 </span>Top Gainers</h2>
+                <button type="button" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></button>
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-muted)]">Biggest price increases</p>
               <ul className="mt-4 space-y-3">
                 {gainers.slice(0, 3).map((coin) => (
                   <li key={coin.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-bg-elevated)] text-xs font-semibold text-[var(--color-text-secondary)]">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                      <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    </span>
                     <span className="shrink-0 font-tabular text-[var(--color-up)]">+{Number(coin.price_change_percentage_24h || 0).toFixed(2)}%</span>
                   </li>
                 ))}
               </ul>
-            </Card>
-
-            <Card className="metric-card hidden xl:col-span-2 xl:block">
-              <p className="text-sm text-[var(--color-text-secondary)]">24h Trading Volume</p>
-              <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
-                {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(volume)}
-              </p>
-              <p className="mt-2 text-xs text-[var(--color-up)]">How much was traded</p>
-            </Card>
-
-            <Card className="metric-card hidden xl:col-span-2 xl:block">
-              <p className="text-sm text-[var(--color-text-secondary)]">Market Cap</p>
-              <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
-                {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(marketCap)}
-              </p>
-              <p className="mt-2 text-xs text-[var(--color-text-secondary)]">Total market value</p>
             </Card>
           </div>
         )}
