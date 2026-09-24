@@ -21,6 +21,7 @@
   --color-down: var(--color-down);
   --color-down-muted: var(--color-down-muted);
   --color-neutral: var(--color-neutral);
+  --color-neutral-muted: var(--color-neutral-muted);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);

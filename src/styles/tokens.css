@@ -31,6 +31,9 @@
   --color-down: #ef4444;
   --color-down-muted: #351a1a;
   --color-neutral: #9aa4b8;
+  --color-neutral-muted: #202735;
+  --color-chart-warm: #d99a32;
+  --color-chart-violet: #8d7ad8;
 
   /* ---- Radius ---- */
   --radius-sm: 6px;
@@ -75,5 +78,8 @@
   --color-down: #c93636;
   --color-down-muted: #fbe6e6;
   --color-neutral: #536078;
+  --color-neutral-muted: #edf0f5;
+  --color-chart-warm: #b97816;
+  --color-chart-violet: #6650b4;
   --shadow-card: 0 1px 2px rgba(23, 32, 51, 0.08), 0 8px 24px rgba(23, 32, 51, 0.08);
 }

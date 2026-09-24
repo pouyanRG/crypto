@@ -1,6 +1,9 @@
 "use client";
 
 import useCoinsMarket from "../lib/hooks/useCoinsMarket";
+import Card from "../components/ui/Card";
+import ErrorState from "../components/ui/ErrorState";
+import Skeleton from "../components/ui/Skeleton";
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -16,7 +19,7 @@ export default function Home() {
 
   return (
     <main className="flex-1 flex items-center justify-center p-8">
-      <div className="max-w-md w-full rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)]">
+      <Card className="w-full max-w-md">
         <p className="text-sm text-[var(--color-text-secondary)] mb-2">
           Phase 1 — Bootstrap
         </p>
@@ -27,8 +30,8 @@ export default function Home() {
           Live Bitcoin market data from CoinGecko, refreshed every minute.
         </p>
         <div className="flex items-center gap-4 font-tabular text-lg">
-          {isLoading && <span className="text-[var(--color-text-muted)]">Loading Bitcoin...</span>}
-          {isError && <span className="text-[var(--color-down)]">Bitcoin data unavailable</span>}
+          {isLoading && <Skeleton variant="text" className="max-w-40" />}
+          {isError && <ErrorState title="Bitcoin data unavailable" description="We could not refresh the latest Bitcoin price." />}
           {!isLoading && !isError && bitcoin && (
             <>
               <span className={change >= 0 ? "text-[var(--color-up)]" : "text-[var(--color-down)]"}>
@@ -40,7 +43,7 @@ export default function Home() {
             </>
           )}
         </div>
-      </div>
+      </Card>
     </main>
   );
 }

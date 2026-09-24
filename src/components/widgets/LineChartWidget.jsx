@@ -1,12 +1,13 @@
 "use client";
 
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import Card from "../ui/Card";
 
 const formatValue = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 2 }).format(value);
 
 export default function LineChartWidget({ title = "Market trend", data = [], dataKey = "value", xKey = "label" }) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-card-padding)] shadow-[var(--shadow-card)]">
+    <Card as="section">
       <div className="mb-5 flex items-center justify-between gap-4"><h2 className="text-base font-semibold text-[var(--color-text-primary)]">{title}</h2><span className="text-xs text-[var(--color-text-muted)]">USD</span></div>
       <div className="h-64 w-full">
         {data.length === 0 ? <div className="flex h-full items-center justify-center text-sm text-[var(--color-text-muted)]">No chart data available</div> : (
@@ -19,6 +20,6 @@ export default function LineChartWidget({ title = "Market trend", data = [], dat
           </ResponsiveContainer>
         )}
       </div>
-    </section>
+    </Card>
   );
 }

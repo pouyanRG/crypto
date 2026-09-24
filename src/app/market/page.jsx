@@ -1,3 +1,5 @@
+import Card from "../../components/ui/Card";
+
 export const metadata = {
   title: "Markets",
   description:
@@ -7,7 +9,7 @@ export const metadata = {
 export default function MarketPage() {
   return (
     <main className="flex-1 flex items-center justify-center p-8">
-      <div className="max-w-md w-full rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)]">
+      <Card className="w-full max-w-md">
         <p className="text-sm text-[var(--color-text-secondary)] mb-2">
           Phase 2 — Folder structure
         </p>
@@ -18,7 +20,7 @@ export default function MarketPage() {
           Route scaffolded. The full market table, tabs, search, and
           watchlist star button land in Phase 7.
         </p>
-      </div>
+      </Card>
     </main>
   );
 }

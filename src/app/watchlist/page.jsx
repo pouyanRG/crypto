@@ -1,3 +1,5 @@
+import Card from "../../components/ui/Card";
+
 export const metadata = {
   title: "Watchlist",
   description: "Coins you've starred, read from localStorage.",
@@ -6,7 +8,7 @@ export const metadata = {
 export default function WatchlistPage() {
   return (
     <main className="flex-1 flex items-center justify-center p-8">
-      <div className="max-w-md w-full rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-card)]">
+      <Card className="w-full max-w-md">
         <p className="text-sm text-[var(--color-text-secondary)] mb-2">
           Phase 2 — Folder structure
         </p>
@@ -17,7 +19,7 @@ export default function WatchlistPage() {
           Route scaffolded. Reading starred coins from localStorage and the
           empty state land in Phase 9.
         </p>
-      </div>
+      </Card>
     </main>
   );
 }
