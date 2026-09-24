@@ -37,7 +37,6 @@ export default function DashboardContent() {
   const [showHighlights, setShowHighlights] = useState(true);
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   const coins = data ?? [];
-  const bitcoin = coins.find((coin) => coin.id === "bitcoin") ?? coins[0];
   const featured = isExpanded ? coins : coins.slice(0, 3);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
   const losers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) < 0).slice(0, 3);
@@ -115,7 +114,7 @@ export default function DashboardContent() {
               </ul>
             </Card>
 
-            <Card className="metric-card hidden xl:block">
+            <Card className="metric-card hidden xl:col-span-2 xl:block">
               <p className="text-sm text-[var(--color-text-secondary)]">24h Trading Volume</p>
               <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
                 {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(volume)}
@@ -123,7 +122,7 @@ export default function DashboardContent() {
               <p className="mt-2 text-xs text-[var(--color-up)]">How much was traded</p>
             </Card>
 
-            <Card className="metric-card hidden xl:block">
+            <Card className="metric-card hidden xl:col-span-2 xl:block">
               <p className="text-sm text-[var(--color-text-secondary)]">Market Cap</p>
               <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
                 {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(marketCap)}
@@ -165,8 +164,11 @@ export default function DashboardContent() {
                 <tr>
                   <th>Asset</th>
                   <th>Price</th>
+                  <th>1h</th>
                   <th>24h</th>
+                  <th>7d</th>
                   <th>Volume</th>
+                  <th>Market Cap</th>
                 </tr>
               </thead>
               <tbody>
@@ -187,12 +189,23 @@ export default function DashboardContent() {
                     </td>
                     <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
                     <td>
+                      <span className={`price-pill ${(coin.price_change_percentage_1h_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                        {coin.price_change_percentage_1h_in_currency == null ? "—" : `${coin.price_change_percentage_1h_in_currency >= 0 ? "+" : ""}${Number(coin.price_change_percentage_1h_in_currency).toFixed(2)}%`}
+                      </span>
+                    </td>
+                    <td>
                       <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
                         {coin.price_change_percentage_24h >= 0 ? "+" : ""}
                         {Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
                       </span>
                     </td>
+                    <td>
+                      <span className={`price-pill ${(coin.price_change_percentage_7d_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                        {coin.price_change_percentage_7d_in_currency == null ? "—" : `${coin.price_change_percentage_7d_in_currency >= 0 ? "+" : ""}${Number(coin.price_change_percentage_7d_in_currency).toFixed(2)}%`}
+                      </span>
+                    </td>
                     <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
+                    <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -276,24 +289,6 @@ export default function DashboardContent() {
           </div>
         </Card>
 
-        <Card>
-          <p className="eyebrow">Market note</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Signal summary</h2>
-          <p className="mt-4 text-[var(--color-text-secondary)]">
-            Risk appetite remains constructive while liquidity stays concentrated in large-cap leaders. Maintain measured exposure and monitor trend quality before adding new positions.
-          </p>
-          <div className="mt-5 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-accent-muted)] p-3">
-            <div className="text-sm text-[var(--color-text-secondary)]">Bitcoin reference</div>
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <span className="font-tabular text-xl font-semibold text-[var(--color-text-primary)]">
-                {bitcoin ? formatPrice(bitcoin.current_price) : "—"}
-              </span>
-              <span className={`price-pill ${bitcoin && bitcoin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
-                {bitcoin ? `${bitcoin.price_change_percentage_24h >= 0 ? "+" : ""}${Number(bitcoin.price_change_percentage_24h || 0).toFixed(2)}%` : "—"}
-              </span>
-            </div>
-          </div>
-        </Card>
       </section>
     </div>
   );
