@@ -34,6 +34,7 @@ function TrendArrow({ positive }) {
 
 export default function DashboardContent() {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showHighlights, setShowHighlights] = useState(true);
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   const coins = data ?? [];
   const bitcoin = coins.find((coin) => coin.id === "bitcoin") ?? coins[0];
@@ -42,8 +43,7 @@ export default function DashboardContent() {
   const losers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) < 0).slice(0, 3);
   const marketCap = coins.reduce((sum, coin) => sum + (coin.market_cap ?? 0), 0);
   const volume = coins.reduce((sum, coin) => sum + (coin.total_volume ?? 0), 0);
-  const averageMove =
-    coins.reduce((sum, coin) => sum + (Number(coin.price_change_percentage_24h) || 0), 0) / Math.max(coins.length, 1);
+  const trending = coins.slice(0, 3);
 
   return (
     <div className="dashboard-shell py-6 sm:py-8">
@@ -61,45 +61,77 @@ export default function DashboardContent() {
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="Key market metrics">
-        {[
-          {
-            label: "Total market cap",
-            value: isLoading ? null : formatPrice(marketCap),
-            change: "+2.84%",
-            positive: true,
-          },
-          {
-            label: "24h volume",
-            value: isLoading ? null : formatPrice(volume),
-            change: "+6.18%",
-            positive: true,
-          },
-          {
-            label: "BTC dominance",
-            value: isLoading ? null : `${(bitcoin?.market_cap_percentage ?? 0).toFixed(1)}%`,
-            change: "+0.42%",
-            positive: true,
-          },
-          {
-            label: "Average move",
-            value: isLoading ? null : `${averageMove.toFixed(2)}%`,
-            change: "Across tracked assets",
-            positive: averageMove >= 0,
-          },
-        ].map((item) => (
-          <Card key={item.label} className="metric-card">
-            <p className="text-sm text-[var(--color-text-secondary)]">{item.label}</p>
-            <div className="mt-5 flex items-end justify-between gap-3">
-              <div className="font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
-                {isLoading ? <Skeleton variant="text" className="w-24" /> : item.value ?? "—"}
+      <section aria-label="Market highlights">
+        <div className="mb-3 flex items-center justify-end">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={showHighlights}
+            aria-label="Toggle market highlights"
+            onClick={() => setShowHighlights((visible) => !visible)}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-text-secondary)]"
+          >
+            <span>Highlights</span>
+            <span
+              aria-hidden="true"
+              className={`relative h-6 w-11 rounded-full p-1 transition-colors ${showHighlights ? "bg-[var(--color-up)]" : "bg-[var(--color-border)]"}`}
+            >
+              <span className={`block size-4 rounded-full bg-white shadow-sm transition-transform ${showHighlights ? "translate-x-5" : "translate-x-0"}`} />
+            </span>
+          </button>
+        </div>
+
+        {showHighlights && (
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4" aria-label="Key market metrics">
+            <Card className="metric-card">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">Trending</h2>
+                <span aria-hidden="true">🔥</span>
               </div>
-              <div className={`price-pill ${item.positive ? "up" : "down"}`}>
-                {item.change}
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">Most watched by the market</p>
+              <ul className="mt-4 space-y-3">
+                {trending.map((coin) => (
+                  <li key={coin.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    <span className="shrink-0 font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+
+            <Card className="metric-card">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-base font-semibold text-[var(--color-text-primary)]">Top Gainers</h2>
+                <span aria-hidden="true">🚀</span>
               </div>
-            </div>
-          </Card>
-        ))}
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">Biggest price increases</p>
+              <ul className="mt-4 space-y-3">
+                {gainers.slice(0, 3).map((coin) => (
+                  <li key={coin.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className="truncate font-medium text-[var(--color-text-secondary)]">{coin.name}</span>
+                    <span className="shrink-0 font-tabular text-[var(--color-up)]">+{Number(coin.price_change_percentage_24h || 0).toFixed(2)}%</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+
+            <Card className="metric-card hidden xl:block">
+              <p className="text-sm text-[var(--color-text-secondary)]">24h Trading Volume</p>
+              <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
+                {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(volume)}
+              </p>
+              <p className="mt-2 text-xs text-[var(--color-up)]">How much was traded</p>
+            </Card>
+
+            <Card className="metric-card hidden xl:block">
+              <p className="text-sm text-[var(--color-text-secondary)]">Market Cap</p>
+              <p className="mt-5 font-tabular text-2xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)]">
+                {isLoading ? <Skeleton variant="text" className="w-24" /> : formatPrice(marketCap)}
+              </p>
+              <p className="mt-2 text-xs text-[var(--color-text-secondary)]">Total market value</p>
+            </Card>
+          </div>
+        )}
       </section>
 
       <section className="market-grid" aria-label="Market trends and movers">
