@@ -52,7 +52,8 @@ export function getCoinDetailUrl(id: string): string {
 }
 
 export function getCoinChartUrl(id: string, days = 30): string {
-  const params = new URLSearchParams({ vs_currency: "usd", days: String(days), interval: days > 90 ? "daily" : "hourly" });
+  const params = new URLSearchParams({ vs_currency: "usd", days: String(days) });
+  if (days > 90) params.set("interval", "daily");
   return `${API_BASE_URL}/coins/${encodeURIComponent(id)}/market_chart?${params}`;
 }
 
