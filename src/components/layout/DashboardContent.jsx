@@ -2,15 +2,17 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import useCoinChart from "../../lib/hooks/useCoinChart";
+import useCoinVolume from "../../lib/hooks/useCoinVolume";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import { formatCompact, formatPrice } from "../../lib/formatters";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
+import MiniAreaChart from "../widgets/MiniAreaChart";
 
 const formatChange = (value) =>
   value == null ? "—" : `${value >= 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
@@ -46,6 +48,21 @@ export default function DashboardContent() {
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   const { data: btcChart = [], isLoading: chartLoading, isError: chartError, refetch } = useCoinChart("bitcoin", 30);
   const coins = data ?? [];
+  const { data: btcVolume = [] } = useCoinVolume("bitcoin", 7);
+  const marketCapSeries = useMemo(() => {
+    const list = (data ?? []).filter(
+      (coin) => coin.sparkline_in_7d?.price?.length > 1 && coin.current_price && coin.market_cap,
+    );
+    if (!list.length) return [];
+    const length = Math.min(...list.map((coin) => coin.sparkline_in_7d.price.length));
+    return Array.from({ length }, (_, index) => ({
+      value: list.reduce((sum, coin) => {
+        const prices = coin.sparkline_in_7d.price;
+        const supply = coin.market_cap / coin.current_price;
+        return sum + prices[prices.length - length + index] * supply;
+      }, 0),
+    }));
+  }, [data]);
   const featured = isExpanded ? coins : coins.slice(0, 3);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
   const losers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) < 0).slice(0, 3);
@@ -94,7 +111,7 @@ export default function DashboardContent() {
 
         {showHighlights && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Key market metrics">
-            <div className="hidden flex-col gap-4 xl:flex">
+            <div className="flex flex-col gap-4">
               <Card className="metric-card min-h-[132px]">
                 <div className="flex items-center justify-between gap-6">
                   <div className="min-w-0">
@@ -104,8 +121,9 @@ export default function DashboardContent() {
                     <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">
                       Market Cap <span className={averageMove >= 0 ? "text-[var(--color-up)]" : "text-[var(--color-down)]"}>{averageMove >= 0 ? "▲" : "▼"} {Math.abs(averageMove).toFixed(2)}%</span>
                     </p>
+                    <p className="mt-1 text-xs text-[var(--color-text-muted)]">Tracked coins, 7d</p>
                   </div>
-                  <span className="text-xs text-[var(--color-text-muted)]">Historical chart unavailable</span>
+                  <MiniAreaChart id="mc-area" data={marketCapSeries} color="var(--color-accent)" />
                 </div>
               </Card>
 
@@ -116,8 +134,9 @@ export default function DashboardContent() {
                       {isLoading ? <Skeleton variant="text" className="w-32" /> : formatPrice(volume)}
                     </div>
                     <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">24h Trading Volume</p>
+                    <p className="mt-1 text-xs text-[var(--color-text-muted)]">BTC 7d volume trend</p>
                   </div>
-                  <span className="text-xs text-[var(--color-text-muted)]">Historical chart unavailable</span>
+                  <MiniAreaChart id="vol-area" data={btcVolume} color="var(--color-chart-violet)" />
                 </div>
               </Card>
             </div>
