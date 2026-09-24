@@ -198,10 +198,12 @@ button:disabled {
 
 .market-panel {
   grid-column: span 12;
+  min-width: 0;
 }
 
 .market-side {
   grid-column: span 12;
+  min-width: 0;
 }
 
 .market-table {

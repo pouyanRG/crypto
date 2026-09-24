@@ -11,6 +11,10 @@ import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
+
+const formatChange = (value) =>
+  value == null ? "—" : `${value >= 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
+
 const Sparkline = dynamic(() => import("../market/Sparkline"), { ssr: false });
 const LineChartWidget = dynamic(() => import("../widgets/LineChartWidget"), { ssr: false });
 
@@ -89,7 +93,7 @@ export default function DashboardContent() {
         </div>
 
         {showHighlights && (
-          <div className="grid grid-cols-2 gap-4 xl:grid-cols-3" aria-label="Key market metrics">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Key market metrics">
             <div className="hidden flex-col gap-4 xl:flex">
               <Card className="metric-card min-h-[132px]">
                 <div className="flex items-center justify-between gap-6">
@@ -171,7 +175,7 @@ export default function DashboardContent() {
 
       <section className="market-grid" aria-label="Market trends and movers">
         <Card className="market-panel">
-          <div className="mb-5 flex items-center justify-between gap-3">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Live trend</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Market pulse</h2>
@@ -195,59 +199,97 @@ export default function DashboardContent() {
           ) : isError ? (
             <ErrorState title="Market data unavailable" description="We could not refresh the latest market overview." />
           ) : (
-            <table className="market-table" aria-label="Market overview table">
-              <thead>
-                <tr>
-                  <th>Asset</th>
-                  <th>Price</th>
-                  <th>1h</th>
-                  <th>24h</th>
-                  <th>7d</th>
-                  <th>Volume</th>
-                  <th>Market Cap</th>
-                  <th>7d Trend</th>
-                </tr>
-              </thead>
-              <tbody>
-                {featured.map((coin) => (
-                  <tr key={coin.id}>
-                    <td>
-                      <div className="coin-badge">
-                        {COIN_LOGOS[coin.id] ? (
-                          <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
-                        ) : (
-                          <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
-                        )}
-                        <div>
-                          <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
-                          <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
+            <>
+              <ul className="divide-y divide-[var(--color-border-subtle)] md:hidden" aria-label="Market overview list">
+                {featured.map((coin) => {
+                  const change24h = coin.price_change_percentage_24h;
+                  return (
+                    <li key={coin.id} className="py-3 first:pt-0 last:pb-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          {COIN_LOGOS[coin.id] ? (
+                            <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
+                          ) : (
+                            <span className="coin-mark shrink-0">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                          )}
+                          <div className="min-w-0">
+                            <div className="truncate font-medium text-[var(--color-text-primary)]">{coin.name}</div>
+                            <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
+                          </div>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <div className="font-tabular text-sm text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</div>
+                          <span className={`price-pill mt-1 ${change24h >= 0 ? "up" : "down"}`}>{formatChange(change24h)}</span>
                         </div>
                       </div>
-                    </td>
-                    <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
-                    <td>
-                      <span className={`price-pill ${(coin.price_change_percentage_1h_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
-                        {coin.price_change_percentage_1h_in_currency == null ? "—" : `${coin.price_change_percentage_1h_in_currency >= 0 ? "+" : ""}${Number(coin.price_change_percentage_1h_in_currency).toFixed(2)}%`}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
-                        {coin.price_change_percentage_24h >= 0 ? "+" : ""}
-                        {Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`price-pill ${(coin.price_change_percentage_7d_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
-                        {coin.price_change_percentage_7d_in_currency == null ? "—" : `${coin.price_change_percentage_7d_in_currency >= 0 ? "+" : ""}${Number(coin.price_change_percentage_7d_in_currency).toFixed(2)}%`}
-                      </span>
-                    </td>
-                    <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
-                    <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
-                    <td><Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <p className="min-w-0 truncate text-xs text-[var(--color-text-muted)]">
+                          MCap <span className="font-tabular">{formatCompact(coin.market_cap)}</span>
+                          {" · "}
+                          Vol <span className="font-tabular">{formatCompact(coin.total_volume)}</span>
+                        </p>
+                        <Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="hidden overflow-x-auto md:block">
+                <table className="market-table min-w-[720px]" aria-label="Market overview table">
+                  <thead>
+                    <tr>
+                      <th>Asset</th>
+                      <th>Price</th>
+                      <th>1h</th>
+                      <th>24h</th>
+                      <th>7d</th>
+                      <th>Volume</th>
+                      <th>Market Cap</th>
+                      <th>7d Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {featured.map((coin) => (
+                      <tr key={coin.id}>
+                        <td>
+                          <div className="coin-badge">
+                            {COIN_LOGOS[coin.id] ? (
+                              <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
+                            ) : (
+                              <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                            )}
+                            <div>
+                              <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
+                              <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
+                        <td>
+                          <span className={`price-pill ${(coin.price_change_percentage_1h_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                            {formatChange(coin.price_change_percentage_1h_in_currency)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
+                            {formatChange(coin.price_change_percentage_24h)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`price-pill ${(coin.price_change_percentage_7d_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                            {formatChange(coin.price_change_percentage_7d_in_currency)}
+                          </span>
+                        </td>
+                        <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
+                        <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
+                        <td><Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </Card>
 
