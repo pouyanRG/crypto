@@ -4,7 +4,7 @@ const VARIANTS = {
   default: "border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]",
   elevated: "border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]",
   outlined: "border border-[var(--color-border)] bg-transparent shadow-none",
-  interactive: "border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[rgba(59,130,246,0.4)] hover:bg-[var(--color-surface-hover)]",
+  interactive: "border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] transition-colors duration-150 ease-out hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-hover)]",
   compact: "border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-none",
 };
 

@@ -3,8 +3,8 @@
 import clsx from "clsx";
 
 const VARIANTS = {
-  primary: "border border-transparent bg-[var(--color-accent)] text-white shadow-[0_10px_20px_rgba(59,130,246,0.22)] hover:-translate-y-0.5 hover:bg-[var(--color-accent)] active:translate-y-0",
-  secondary: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] hover:-translate-y-0.5 active:translate-y-0",
+  primary: "border border-transparent bg-[var(--color-accent)] text-white hover:brightness-110 active:brightness-95",
+  secondary: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
   outline: "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
   ghost: "bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
   destructive: "border border-transparent bg-[var(--color-down)] text-white hover:opacity-90",
