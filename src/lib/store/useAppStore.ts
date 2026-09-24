@@ -78,6 +78,7 @@ export const useAppStore = create<AppState>()(
           portfolio,
         };
       },
+      skipHydration: true,
     },
   ),
 );

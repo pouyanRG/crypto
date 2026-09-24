@@ -12,6 +12,10 @@ function ThemeProvider({ children }: ProvidersProps) {
   const theme = useAppStore((state) => state.theme);
 
   useEffect(() => {
+    void useAppStore.persist.rehydrate();
+  }, []);
+
+  useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
