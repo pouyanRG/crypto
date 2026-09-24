@@ -8,6 +8,7 @@ import useCoinChart from "../../lib/hooks/useCoinChart";
 import useCoinVolume from "../../lib/hooks/useCoinVolume";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import { formatCompact, formatPrice } from "../../lib/formatters";
+import { useAppStore } from "../../lib/store/useAppStore";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
@@ -20,34 +21,13 @@ const formatChange = (value) =>
 const Sparkline = dynamic(() => import("../market/Sparkline"), { ssr: false });
 const LineChartWidget = dynamic(() => import("../widgets/LineChartWidget"), { ssr: false });
 
-function TrendArrow({ positive }) {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      aria-hidden="true"
-      className={positive ? "h-4 w-4 text-[var(--color-up)]" : "h-4 w-4 text-[var(--color-down)]"}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {positive ? (
-        <path d="M5 12.5 9 8.5l2.5 2.5L15 6.5" />
-      ) : (
-        <path d="M5 7.5 9 11.5l2.5-2.5L15 13.5" />
-      )}
-      <path d="M15 13.5v-5h-5" />
-    </svg>
-  );
-}
-
 export default function DashboardContent() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showHighlights, setShowHighlights] = useState(true);
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   const { data: btcChart = [], isLoading: chartLoading, isError: chartError, refetch } = useCoinChart("bitcoin", 30);
   const coins = data ?? [];
+  const watchlistIds = useAppStore((state) => state.watchlistIds);
   const { data: btcVolume = [] } = useCoinVolume("bitcoin", 7);
   const marketCapSeries = useMemo(() => {
     const list = (data ?? []).filter(
@@ -64,6 +44,9 @@ export default function DashboardContent() {
     }));
   }, [data]);
   const featured = isExpanded ? coins : coins.slice(0, 3);
+  const watchlistCoins = watchlistIds
+    .map((id) => coins.find((coin) => coin.id === id))
+    .filter(Boolean);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
   const losers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) < 0).slice(0, 3);
   const marketCap = coins.reduce((sum, coin) => sum + (coin.market_cap ?? 0), 0);
@@ -313,51 +296,41 @@ export default function DashboardContent() {
         </Card>
 
         <Card className="market-side">
-          <div className="mb-5">
-            <p className="eyebrow">Top movers</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Momentum</h2>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <p className="eyebrow">Top movers</p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Momentum</h2>
+            </div>
+            <span className="text-xs text-[var(--color-text-muted)]">24h</span>
           </div>
 
-          <ul className="muted-list space-y-0">
-            {gainers.length > 0 && (
-              <li className="py-3">
-                <div className="mb-2 flex items-center justify-between text-sm text-[var(--color-text-secondary)]">
-                  <span>Gainers</span>
-                  <span className="text-[var(--color-up)]">Strong</span>
-                </div>
-                {gainers.map((coin) => (
-                  <div key={coin.id} className="flex items-center justify-between gap-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <TrendArrow positive />
-                      <span className="font-medium text-[var(--color-text-primary)]">{coin.symbol.toUpperCase()}</span>
-                    </div>
-                    <span className="font-tabular text-[var(--color-up)]">
-                      +{Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
-                    </span>
+          {gainers.length === 0 && losers.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-muted)]">No momentum data available</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {[{ label: "Gainers", items: gainers, colorClass: "text-[var(--color-up)]", prefix: "+" }, { label: "Losers", items: losers, colorClass: "text-[var(--color-down)]", prefix: "" }].map((group) => (
+                <div key={group.label}>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className={`text-xs font-semibold uppercase tracking-wide ${group.colorClass}`}>{group.label}</span>
+                    <span className="text-xs text-[var(--color-text-muted)]">{group.items.length}</span>
                   </div>
-                ))}
-              </li>
-            )}
-            {losers.length > 0 && (
-              <li className="py-3">
-                <div className="mb-2 flex items-center justify-between text-sm text-[var(--color-text-secondary)]">
-                  <span>Losers</span>
-                  <span className="text-[var(--color-down)]">Cooling</span>
+                  <ul className="divide-y divide-[var(--color-border-subtle)]">
+                    {group.items.map((coin, index) => (
+                      <li key={coin.id} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className="w-4 shrink-0 text-xs text-[var(--color-text-muted)]">{index + 1}</span>
+                          <span className="truncate text-sm font-medium text-[var(--color-text-primary)]">{coin.symbol.toUpperCase()}</span>
+                        </span>
+                        <span className={`shrink-0 font-tabular text-sm font-medium ${group.colorClass}`}>
+                          {group.prefix}{Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                {losers.map((coin) => (
-                  <div key={coin.id} className="flex items-center justify-between gap-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <TrendArrow positive={false} />
-                      <span className="font-medium text-[var(--color-text-primary)]">{coin.symbol.toUpperCase()}</span>
-                    </div>
-                    <span className="font-tabular text-[var(--color-down)]">
-                      {Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
-                    </span>
-                  </div>
-                ))}
-              </li>
-            )}
-          </ul>
+              ))}
+            </div>
+          )}
         </Card>
       </section>
 
@@ -366,26 +339,42 @@ export default function DashboardContent() {
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Portfolio signal</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Strategic watchlist</h2>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Watchlist snapshot</h2>
             </div>
             <Button variant="secondary" size="sm">Manage</Button>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {featured.map((coin) => (
-              <div key={coin.id} className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-[var(--color-text-secondary)]">{coin.symbol.toUpperCase()}</span>
-                  <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
-                    {Number(coin.price_change_percentage_24h || 0).toFixed(2)}%
-                  </span>
-                </div>
-                <div className="mt-4 font-tabular text-xl font-semibold text-[var(--color-text-primary)]">
-                  {formatPrice(coin.current_price)}
-                </div>
-              </div>
-            ))}
-          </div>
+          {watchlistCoins.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-muted)]">No assets to show yet</p>
+          ) : (
+            <ul className="divide-y divide-[var(--color-border-subtle)]">
+              {watchlistCoins.map((coin) => {
+                const change = coin.price_change_percentage_24h;
+                return (
+                  <li key={coin.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {COIN_LOGOS[coin.id] ? (
+                        <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
+                      ) : (
+                        <span className="coin-mark shrink-0">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                      )}
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-[var(--color-text-primary)]">{coin.name}</div>
+                        <div className="text-xs uppercase text-[var(--color-text-muted)]">{coin.symbol}</div>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-4">
+                      <Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} />
+                      <div className="text-right">
+                        <div className="font-tabular text-sm font-semibold text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</div>
+                        <span className={`price-pill mt-1 ${change >= 0 ? "up" : "down"}`}>{formatChange(change)}</span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </Card>
 
       </section>
