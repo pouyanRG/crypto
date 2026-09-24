@@ -1,6 +1,9 @@
 "use client";
 
+import Image from "next/image";
+import { useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
+import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
@@ -40,10 +43,11 @@ function TrendArrow({ positive }) {
 }
 
 export default function DashboardContent() {
-  const { data, isLoading, isError } = useCoinsMarket({ perPage: 6 });
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   const coins = data ?? [];
   const bitcoin = coins.find((coin) => coin.id === "bitcoin") ?? coins[0];
-  const featured = coins.slice(0, 3);
+  const featured = isExpanded ? coins : coins.slice(0, 3);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
   const losers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) < 0).slice(0, 3);
   const marketCap = coins.reduce((sum, coin) => sum + (coin.market_cap ?? 0), 0);
@@ -115,7 +119,14 @@ export default function DashboardContent() {
               <p className="eyebrow">Live trend</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Market pulse</h2>
             </div>
-            <span className="text-sm text-[var(--color-text-muted)]">Updated every minute</span>
+            <div className="flex items-center gap-3">
+              <span className="hidden text-sm text-[var(--color-text-muted)] sm:inline">Updated every minute</span>
+              {coins.length > 3 && (
+                <Button variant="secondary" size="sm" onClick={() => setIsExpanded((expanded) => !expanded)}>
+                  {isExpanded ? "Show Less" : "Show More"}
+                </Button>
+              )}
+            </div>
           </div>
 
           {isLoading ? (
@@ -141,7 +152,11 @@ export default function DashboardContent() {
                   <tr key={coin.id}>
                     <td>
                       <div className="coin-badge">
-                        <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                        {COIN_LOGOS[coin.id] ? (
+                          <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
+                        ) : (
+                          <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                        )}
                         <div>
                           <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
                           <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
