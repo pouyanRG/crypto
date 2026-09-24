@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
@@ -9,10 +10,7 @@ import Button from "../ui/Button";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
-import Sparkline from "../market/Sparkline";
-import MarketMetricChart from "../widgets/MarketMetricChart";
-import useGlobalMarketChart from "../../lib/hooks/useGlobalMarketChart";
-import { normalizeGlobalSeries } from "../../lib/api";
+const Sparkline = dynamic(() => import("../market/Sparkline"), { ssr: false });
 
 function TrendArrow({ positive }) {
   return (
@@ -40,7 +38,6 @@ export default function DashboardContent() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showHighlights, setShowHighlights] = useState(true);
   const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
-  const { data: globalChart, isLoading: isGlobalChartLoading, isError: isGlobalChartError } = useGlobalMarketChart(30);
   const coins = data ?? [];
   const featured = isExpanded ? coins : coins.slice(0, 3);
   const gainers = [...coins].filter((coin) => Number(coin.price_change_percentage_24h) >= 0).slice(0, 3);
@@ -50,8 +47,6 @@ export default function DashboardContent() {
   const trending = coins.slice(0, 3);
   const averageMove =
     coins.reduce((sum, coin) => sum + (Number(coin.price_change_percentage_24h) || 0), 0) / Math.max(coins.length, 1);
-  const marketCapTrend = normalizeGlobalSeries(globalChart?.market_cap_chart?.market_cap).map(({ timestamp, price }) => ({ timestamp, value: price }));
-  const volumeTrend = normalizeGlobalSeries(globalChart?.market_cap_chart?.volume).map(({ timestamp, price }) => ({ timestamp, value: price }));
   const getCoinSparkline = (coin) => (coin.sparkline_in_7d?.price ?? []).map((value) => ({ value }));
 
   return (
@@ -103,7 +98,7 @@ export default function DashboardContent() {
                       Market Cap <span className={averageMove >= 0 ? "text-[var(--color-up)]" : "text-[var(--color-down)]"}>{averageMove >= 0 ? "▲" : "▼"} {Math.abs(averageMove).toFixed(2)}%</span>
                     </p>
                   </div>
-                  {isGlobalChartLoading ? <Skeleton variant="row" className="h-24 w-40" /> : isGlobalChartError ? <span className="text-xs text-[var(--color-down)]">Chart unavailable</span> : <MarketMetricChart data={marketCapTrend} dataKey="value" color="var(--color-down)" label="Market cap" />}
+                  <span className="text-xs text-[var(--color-text-muted)]">Historical chart unavailable</span>
                 </div>
               </Card>
 
@@ -115,7 +110,7 @@ export default function DashboardContent() {
                     </p>
                     <p className="mt-2 text-base font-semibold text-[var(--color-text-secondary)]">24h Trading Volume</p>
                   </div>
-                  {isGlobalChartLoading ? <Skeleton variant="row" className="h-24 w-40" /> : isGlobalChartError ? <span className="text-xs text-[var(--color-down)]">Chart unavailable</span> : <MarketMetricChart data={volumeTrend} dataKey="value" color="var(--color-down)" label="24h trading volume" />}
+                  <span className="text-xs text-[var(--color-text-muted)]">Historical chart unavailable</span>
                 </div>
               </Card>
             </div>
