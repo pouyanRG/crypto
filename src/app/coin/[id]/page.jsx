@@ -1,16 +1,24 @@
 import Card from "../../../components/ui/Card";
 
-export const metadata = {
-  title: "Coin Detail",
-  description:
-    "Price, chart, all-time high/low, market cap rank, and description for a single coin.",
-};
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const name = id
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(" ");
+
+  return {
+    title: name || "Coin Detail",
+    description: `Price, chart, all-time high/low, market cap rank, and description for ${name || "a single coin"}.`,
+  };
+}
 
 export default async function CoinDetailPage({ params }) {
   const { id } = await params;
 
   return (
-    <main className="flex-1 flex items-center justify-center p-8">
+    <section className="flex min-h-[50vh] items-center justify-center">
       <Card className="w-full max-w-md">
         <p className="text-sm text-[var(--color-text-secondary)] mb-2">
           Phase 2 — Folder structure
@@ -23,6 +31,6 @@ export default async function CoinDetailPage({ params }) {
           timeframe selector, and stats land in Phase 8.
         </p>
       </Card>
-    </main>
+    </section>
   );
 }

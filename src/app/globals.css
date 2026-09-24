@@ -37,6 +37,28 @@ body {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 50;
+  transform: translateY(-200%);
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: white;
+  padding: 0.625rem 0.875rem;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 /* Numbers/prices should default to the monospace face for readability */
 .font-tabular {
   font-family: var(--font-mono), ui-monospace, monospace;

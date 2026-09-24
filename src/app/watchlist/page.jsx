@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function WatchlistPage() {
   return (
-    <main className="flex-1 flex items-center justify-center p-8">
+    <section className="flex min-h-[50vh] items-center justify-center">
       <Card className="w-full max-w-md">
         <p className="text-sm text-[var(--color-text-secondary)] mb-2">
           Phase 2 — Folder structure
@@ -20,6 +20,6 @@ export default function WatchlistPage() {
           empty state land in Phase 9.
         </p>
       </Card>
-    </main>
+    </section>
   );
 }
