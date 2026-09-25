@@ -4,7 +4,7 @@ import Badge, { changeVariant } from "../ui/Badge";
 export default function StatCard({ label, value, change, changeLabel = "24h", className }) {
   return (
     <article className={clsx(
-      "rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-card-padding)] shadow-[var(--shadow-card)]",
+      "rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-card-padding)]",
       className
     )}>
       <p className="text-sm text-[var(--color-text-secondary)]">{label}</p>

@@ -1,11 +1,11 @@
 import clsx from "clsx";
 
 const VARIANTS = {
-  default: "border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]",
-  elevated: "border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]",
-  outlined: "border border-[var(--color-border)] bg-transparent shadow-none",
-  interactive: "border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)] transition-colors duration-150 ease-out hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-hover)]",
-  compact: "border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-none",
+  default: "border border-[var(--color-border)] bg-[var(--color-surface)]",
+  elevated: "border border-[var(--color-border)] bg-[var(--color-bg-elevated)]",
+  outlined: "border border-[var(--color-border)] bg-transparent",
+  interactive: "border border-[var(--color-border)] bg-[var(--color-surface)] transition-[background-color,border-color,transform] duration-150 ease-[var(--ease-standard)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] active:translate-y-px",
+  compact: "border border-[var(--color-border)] bg-[var(--color-surface)] p-3",
 };
 
 /** @param {{ as?: import("react").ElementType, variant?: string, className?: string, children?: import("react").ReactNode, onClick?: (event: import("react").KeyboardEvent | import("react").MouseEvent) => void, [key: string]: any }} props */

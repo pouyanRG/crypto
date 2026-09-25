@@ -44,6 +44,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-body);
   background: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
@@ -141,7 +143,7 @@ button:disabled {
 
 .dashboard-shell {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-section-gap);
 }
 
 .section-heading {
@@ -178,7 +180,6 @@ button:disabled {
   height: 0.5rem;
   border-radius: 999px;
   background: var(--color-up);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
 }
 
 .metric-card {
@@ -348,17 +349,14 @@ button:disabled {
   display: flex;
   flex-direction: column;
   font-size: clamp(2.1rem, 9vw, 3.25rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-heading);
   color: var(--color-text-primary);
 }
 
-.market-hero-title-gradient {
-  background: linear-gradient(90deg, var(--color-chart-violet), var(--color-accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.market-hero-title-accent {
+  color: var(--color-text-primary);
 }
 
 .market-hero-subtitle {
@@ -406,7 +404,6 @@ button:disabled {
   height: 0.5rem;
   border-radius: 999px;
   background: var(--color-up);
-  box-shadow: 0 0 0 3px var(--color-up-muted);
 }
 
 .market-hero-pulse-label { grid-area: label; min-width: 0; }
@@ -506,24 +503,44 @@ button:disabled {
   padding-inline: 1.25rem;
   border-radius: var(--radius-lg);
   font-size: 1rem;
-  font-weight: 600;
-  transition: filter 0.15s ease, background-color 0.15s ease;
+  font-weight: var(--font-weight-semibold);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
 }
 
 .market-hero-cta {
   border: 1px solid transparent;
-  background: linear-gradient(90deg, var(--color-accent), #7c9cff);
+  background: var(--color-accent);
   color: #fff;
 }
-.market-hero-cta:hover { filter: brightness(1.08); }
-.market-hero-cta:active { filter: brightness(0.95); }
+.market-hero-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+.market-hero-cta:active:not(:disabled) {
+  transform: translateY(0);
+  opacity: 0.88;
+}
 
 .market-hero-export {
   border: 1px solid var(--color-border);
   background: transparent;
   color: var(--color-text-primary);
 }
-.market-hero-export:hover { background: var(--color-surface-hover); }
+.market-hero-export:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+.market-hero-export:active:not(:disabled) {
+  transform: translateY(0);
+}
+.market-hero-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .market-hero-cta:focus-visible,
 .market-hero-export:focus-visible {

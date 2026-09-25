@@ -17,11 +17,11 @@ export default function Tabs({ tabs = [], active, onChange, className = undefine
     if (activationMode === "automatic") onChange?.(nextTab.value);
   };
 
-  return <div role="tablist" aria-label={ariaLabel} className={clsx("inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-[var(--radius-pill)] bg-[var(--color-bg-elevated)] p-1", className)}>{tabs.map((tab, index) => {
+  return <div role="tablist" aria-label={ariaLabel} className={clsx("inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-[var(--radius-pill)] border border-[var(--color-border)] p-0.5", className)}>{tabs.map((tab, index) => {
     const isActive = tab.value === activeValue;
     const tabId = `${id}-${tab.value}`;
     const controlledPanelId = tab.panelId ?? (panelId ? `${panelId}-${tab.value}` : `${tabId}-panel`);
-    return <button key={tab.value} id={tabId} type="button" role="tab" tabIndex={isActive ? 0 : -1} aria-selected={isActive} aria-controls={controlledPanelId} disabled={tab.disabled} onClick={() => onChange?.(tab.value)} onKeyDown={(event) => moveFocus(event, index)} className={clsx("shrink-0 rounded-[var(--radius-pill)] px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:opacity-50", isActive ? "bg-[var(--color-accent)] text-white" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]")}>{tab.label}</button>;
+    return <button key={tab.value} id={tabId} type="button" role="tab" tabIndex={isActive ? 0 : -1} aria-selected={isActive} aria-controls={controlledPanelId} disabled={tab.disabled} onClick={() => onChange?.(tab.value)} onKeyDown={(event) => moveFocus(event, index)} className={clsx("shrink-0 rounded-[var(--radius-pill)] px-3 py-1.5 text-sm font-medium transition-[background-color,color] duration-150 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:opacity-50", isActive ? "bg-[var(--color-accent)] text-white" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]")}>{tab.label}</button>;
   })}</div>;
 }
 

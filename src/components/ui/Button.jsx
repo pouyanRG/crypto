@@ -3,11 +3,11 @@
 import clsx from "clsx";
 
 const VARIANTS = {
-  primary: "border border-transparent bg-[var(--color-accent)] text-white hover:brightness-110 active:brightness-95",
-  secondary: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
-  outline: "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
+  primary: "border border-transparent bg-[var(--color-accent)] text-white hover:-translate-y-px hover:opacity-95 active:translate-y-0 active:opacity-90",
+  secondary: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] active:bg-[var(--color-surface-hover)]",
+  outline: "border border-[var(--color-border)] bg-transparent text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] active:bg-[var(--color-surface-hover)]",
   ghost: "bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
-  destructive: "border border-transparent bg-[var(--color-down)] text-white hover:opacity-90",
+  destructive: "border border-transparent bg-[var(--color-down)] text-white hover:opacity-90 active:opacity-85",
 };
 
 const SIZES = {
@@ -26,7 +26,7 @@ export default function Button({ variant = "primary", size = "md", loading = fal
       aria-busy={loading ? "true" : undefined}
       disabled={disabled || loading}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition-all duration-200 ease-out active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] font-medium transition-[background-color,border-color,transform,opacity] duration-200 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
         VARIANTS[variant] ?? VARIANTS.primary,
         SIZES[size] ?? SIZES.md,
         className,

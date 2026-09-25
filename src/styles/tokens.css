@@ -8,32 +8,36 @@
 :root {
   color-scheme: dark;
 
-  /* ---- Surfaces (dark theme, default) ---- */
-  --color-bg: #0d0f12;
-  --color-bg-elevated: #121519;
-  --color-surface: #171a1f;
-  --color-surface-hover: #1d2229;
-  --color-border: rgba(163, 174, 189, 0.18);
-  --color-border-subtle: rgba(163, 174, 189, 0.11);
+  /* ---- Surfaces (Zinc scale, dark) ---- */
+  --color-bg: #09090b;
+  --color-bg-elevated: #0f0f12;
+  --color-surface: #18181b;
+  --color-surface-hover: #27272a;
+  --color-border: rgba(128, 128, 128, 0.15);
+  --color-border-subtle: rgba(128, 128, 128, 0.1);
 
   /* ---- Text ---- */
-  --color-text-primary: #f2f4f7;
-  --color-text-secondary: #aab2be;
-  --color-text-muted: #737d8b;
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
 
-  /* ---- Brand / accent ---- */
-  --color-accent: #5b9cff;
-  --color-accent-muted: rgba(91, 156, 255, 0.13);
+  /* ---- Brand / accent (single primary action color) ---- */
+  --color-accent: #3b82f6;
+  --color-accent-muted: rgba(59, 130, 246, 0.12);
 
   /* ---- Market status ---- */
   --color-up: #22c55e;
   --color-up-muted: rgba(34, 197, 94, 0.12);
-  --color-down: #f87171;
-  --color-down-muted: rgba(248, 113, 113, 0.12);
+  --color-down: #ef4444;
+  --color-down-muted: rgba(239, 68, 68, 0.12);
   --color-neutral: #94a3b8;
   --color-neutral-muted: rgba(148, 163, 184, 0.12);
-  --color-chart-warm: #f59e0b;
-  --color-chart-violet: #8b5cf6;
+
+  /* ---- Chart-only (not for chrome / buttons / hero) ---- */
+  --color-chart-series-2: #64748b;
+  --color-chart-series-3: #94a3b8;
+  --color-chart-warm: #d97706;
+  --color-chart-violet: #6366f1;
 
   /* ---- Radius ---- */
   --radius-sm: 6px;
@@ -43,8 +47,8 @@
   --radius-pill: 999px;
 
   /* ---- Spacing ---- */
-  --space-card-padding: 1.25rem;
-  --space-section-gap: 1.5rem;
+  --space-card-padding: 1.625rem;
+  --space-section-gap: 2rem;
   --space-page-inline: 1rem;
   --space-control-min: 2.75rem;
 
@@ -56,41 +60,51 @@
   --font-size-xl: 1.5rem;
   --font-size-2xl: 2rem;
   --font-size-3xl: 2.75rem;
+  --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
   --line-height-tight: 1.15;
-  --line-height-body: 1.5;
+  --line-height-body: 1.6;
+  --letter-spacing-heading: -0.02em;
 
-  /* ---- Elevation ---- */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.16);
-  --shadow-float: 0 16px 32px rgba(0, 0, 0, 0.24), 0 4px 10px rgba(0, 0, 0, 0.16);
-  --chart-grid: rgba(163, 174, 189, 0.12);
-  --chart-tooltip: #1c232d;
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+
+  /* ---- Elevation (border-first; float only for overlays) ---- */
+  --shadow-card: none;
+  --shadow-float: 0 16px 32px rgba(0, 0, 0, 0.28), 0 4px 10px rgba(0, 0, 0, 0.18);
+  --chart-grid: rgba(128, 128, 128, 0.12);
+  --chart-tooltip: #18181b;
 }
 
 [data-theme="light"] {
   color-scheme: light;
-  --color-bg: #f6f7f9;
+  --color-bg: #fafafa;
   --color-bg-elevated: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-hover: #f1f4f8;
-  --color-border: rgba(71, 85, 105, 0.2);
-  --color-border-subtle: rgba(71, 85, 105, 0.12);
-  --color-text-primary: #111827;
-  --color-text-secondary: #475569;
-  --color-text-muted: #6b7280;
-  --color-accent: #245fba;
-  --color-accent-muted: rgba(36, 95, 186, 0.08);
+  --color-surface-hover: #f4f4f5;
+  --color-border: rgba(128, 128, 128, 0.15);
+  --color-border-subtle: rgba(128, 128, 128, 0.1);
+  --color-text-primary: #09090b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #71717a;
+  --color-accent: #2563eb;
+  --color-accent-muted: rgba(37, 99, 235, 0.1);
   --color-up: #16a34a;
   --color-up-muted: rgba(22, 163, 74, 0.08);
   --color-down: #dc2626;
   --color-down-muted: rgba(220, 38, 38, 0.08);
   --color-neutral: #64748b;
   --color-neutral-muted: rgba(100, 116, 139, 0.08);
+  --color-chart-series-2: #64748b;
+  --color-chart-series-3: #94a3b8;
   --color-chart-warm: #d97706;
-  --color-chart-violet: #7c3aed;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-float: 0 16px 32px rgba(15, 23, 42, 0.1), 0 4px 10px rgba(15, 23, 42, 0.05);
-  --chart-grid: rgba(71, 85, 105, 0.16);
+  --color-chart-violet: #4f46e5;
+  --shadow-card: none;
+  --shadow-float: 0 16px 32px rgba(15, 23, 42, 0.1), 0 4px 10px rgba(15, 23, 42, 0.06);
+  --chart-grid: rgba(128, 128, 128, 0.14);
   --chart-tooltip: #ffffff;
 }
