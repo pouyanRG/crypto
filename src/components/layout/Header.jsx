@@ -24,10 +24,10 @@ function LiveBadge() {
 export default function Header() {
   return (
     <header
-      className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl"
-      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      className="sticky top-0 z-30 px-4 sm:px-6"
+      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 md:h-16 md:gap-8">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/90 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-8">
         <Link
           href="/"
           className="flex min-w-0 items-center gap-2.5 text-base font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
@@ -38,12 +38,14 @@ export default function Header() {
         <LiveBadge />
         <Nav />
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <LiveDataSourceStatus />
+          <span className="hidden md:inline-flex">
+            <LiveDataSourceStatus />
+          </span>
           <ThemeSwitcher />
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex size-10 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] md:hidden"
+            className="inline-flex size-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] md:hidden"
           >
             <NavIcon name="menu" />
           </button>
