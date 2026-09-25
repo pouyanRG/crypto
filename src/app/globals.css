@@ -317,3 +317,202 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+/* Market hero */
+.market-hero {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.market-hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.market-hero-rule {
+  display: inline-block;
+  width: 1.75rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.market-hero-title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(2.1rem, 9vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.market-hero-title-gradient {
+  background: linear-gradient(90deg, var(--color-chart-violet), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.market-hero-subtitle {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.market-hero-pulse {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 1rem 1.1rem;
+}
+
+.market-hero-pulse-icon {
+  position: relative;
+  display: inline-flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  color: var(--color-up);
+}
+
+.market-hero-pulse-dot {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-up);
+  box-shadow: 0 0 0 3px var(--color-up-muted);
+}
+
+.market-hero-pulse-label { min-width: 0; }
+
+.market-hero-pulse-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.market-hero-pulse-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.market-hero-pulse-stat {
+  margin-inline-start: auto;
+  text-align: right;
+}
+
+.market-hero-pulse-stat-label {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.market-hero-pulse-stat-value {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.market-hero-pulse-stat-change {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.market-hero-pulse-stat-change.up { color: var(--color-up); }
+.market-hero-pulse-stat-change.down { color: var(--color-down); }
+
+.market-hero-pulse-chart {
+  width: 5.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.market-hero-pulse-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+
+.market-hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .market-hero-actions { flex-direction: row; }
+}
+
+.market-hero-cta,
+.market-hero-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding-inline: 1.25rem;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: filter 0.15s ease, background-color 0.15s ease;
+}
+
+.market-hero-cta {
+  border: 1px solid transparent;
+  background: linear-gradient(90deg, var(--color-accent), #7c9cff);
+  color: #fff;
+}
+.market-hero-cta:hover { filter: brightness(1.08); }
+.market-hero-cta:active { filter: brightness(0.95); }
+
+.market-hero-export {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-primary);
+}
+.market-hero-export:hover { background: var(--color-surface-hover); }
+
+.market-hero-cta:focus-visible,
+.market-hero-export:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.market-hero-btn-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

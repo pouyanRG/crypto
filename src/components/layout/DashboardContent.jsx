@@ -14,6 +14,7 @@ import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
 import MiniAreaChart from "../widgets/MiniAreaChart";
+import MarketHero from "./MarketHero";
 
 const formatChange = (value) =>
   value == null ? "—" : `${value >= 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
@@ -58,19 +59,12 @@ export default function DashboardContent() {
 
   return (
     <div className="dashboard-shell py-6 sm:py-8">
-      <header className="section-heading flex-col items-start md:flex-row md:items-end">
-        <div>
-          <p className="eyebrow">Market overview</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[var(--color-text-primary)] sm:text-4xl">
-            Institutional-grade crypto intelligence
-          </h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="kicker"><span className="kicker-dot" aria-hidden="true" />Live market pulse</span>
-          <Button variant="secondary" size="sm">Export</Button>
-          <Button size="sm">Review opportunities</Button>
-        </div>
-      </header>
+      <MarketHero
+        marketCap={marketCap}
+        marketCapChange={coins.length ? averageMove : null}
+        marketCapSeries={marketCapSeries}
+        loading={isLoading}
+      />
 
       <section aria-label="Market highlights">
         <div className="mb-3 flex items-center justify-end">
