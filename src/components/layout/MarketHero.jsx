@@ -104,7 +104,7 @@ export default function MarketHero({ marketCap, marketCapChange, marketCapSeries
         </div>
 
         <div className="market-hero-pulse-chart" aria-hidden="true">
-          <MiniAreaChart id="hero-pulse" data={marketCapSeries} color="var(--color-up)" />
+          <MiniAreaChart id="hero-pulse" data={marketCapSeries} color="var(--color-up)" width={88} height={40} />
         </div>
 
         <Link href="/market" aria-label="View market pulse details" className="market-hero-pulse-arrow">
