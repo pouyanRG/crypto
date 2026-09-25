@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import MiniAreaChart from "../widgets/MiniAreaChart";
 import { formatPrice } from "../../lib/formatters";
 
@@ -35,7 +36,33 @@ function PulseIcon() {
   );
 }
 
-export default function MarketHero({ marketCap, marketCapChange, marketCapSeries = [], loading = false }) {
+function downloadMarketCsv(coins) {
+  const rows = [
+    ["id", "name", "symbol", "current_price", "change_24h_percent", "market_cap", "total_volume"],
+    ...coins.map((coin) => [
+      coin.id,
+      coin.name,
+      coin.symbol,
+      coin.current_price,
+      coin.price_change_percentage_24h,
+      coin.market_cap,
+      coin.total_volume,
+    ]),
+  ];
+  const csv = rows
+    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\r\n");
+  const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "crypto-market.csv";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+export default function MarketHero({ marketCap, marketCapChange, marketCapSeries = [], coins = [], loading = false }) {
   const isUp = (marketCapChange ?? 0) >= 0;
 
   return (
@@ -46,12 +73,12 @@ export default function MarketHero({ marketCap, marketCapChange, marketCapSeries
       </div>
 
       <h1 className="market-hero-title">
-        <span>Institutional-grade</span>
-        <span className="market-hero-title-gradient">crypto intelligence</span>
+        <span>Tracked crypto</span>
+        <span className="market-hero-title-gradient">market snapshot</span>
       </h1>
 
       <p className="market-hero-subtitle">
-        Real-time market data, advanced analytics and actionable insights for smarter decisions.
+        Prices, market capitalization and 24-hour movement across the dashboard&apos;s tracked assets.
       </p>
 
       <div className="market-hero-pulse">
@@ -80,17 +107,17 @@ export default function MarketHero({ marketCap, marketCapChange, marketCapSeries
           <MiniAreaChart id="hero-pulse" data={marketCapSeries} color="var(--color-up)" />
         </div>
 
-        <button type="button" aria-label="View market pulse details" className="market-hero-pulse-arrow">
+        <Link href="/market" aria-label="View market pulse details" className="market-hero-pulse-arrow">
           <ArrowIcon />
-        </button>
+        </Link>
       </div>
 
       <div className="market-hero-actions">
-        <button type="button" className="market-hero-cta">
+        <Link href="/market" className="market-hero-cta">
           <span className="market-hero-btn-left"><SparkleIcon />Review opportunities</span>
           <ArrowIcon />
-        </button>
-        <button type="button" className="market-hero-export">
+        </Link>
+        <button type="button" className="market-hero-export" onClick={() => downloadMarketCsv(coins)} disabled={loading || coins.length === 0}>
           <span className="market-hero-btn-left"><ExportIcon />Export</span>
           <ArrowIcon />
         </button>

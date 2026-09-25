@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
@@ -63,6 +64,7 @@ export default function DashboardContent() {
         marketCap={marketCap}
         marketCapChange={coins.length ? averageMove : null}
         marketCapSeries={marketCapSeries}
+        coins={coins}
         loading={isLoading}
       />
 
@@ -121,7 +123,7 @@ export default function DashboardContent() {
             <Card className="metric-card min-h-[280px]">
               <div className="mb-5 flex items-center justify-between gap-2">
                 <h2 className="text-xl font-semibold text-[var(--color-text-primary)]"><span aria-hidden="true">🔥 </span>Trending</h2>
-                <button type="button" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></button>
+                <Link href="/market?tab=trending" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></Link>
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-muted)]">Most watched by the market</p>
               <ul className="mt-4 space-y-3">
@@ -140,7 +142,7 @@ export default function DashboardContent() {
             <Card className="metric-card min-h-[280px]">
               <div className="mb-5 flex items-center justify-between gap-2">
                 <h2 className="text-xl font-semibold text-[var(--color-text-primary)]"><span aria-hidden="true">🚀 </span>Top Gainers</h2>
-                <button type="button" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></button>
+                <Link href="/market?tab=gainers" className="text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">View more <span aria-hidden="true">›</span></Link>
               </div>
               <p className="mt-1 text-xs text-[var(--color-text-muted)]">Biggest price increases</p>
               <ul className="mt-4 space-y-3">
@@ -335,7 +337,12 @@ export default function DashboardContent() {
               <p className="eyebrow">Portfolio signal</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Watchlist snapshot</h2>
             </div>
-            <Button variant="secondary" size="sm">Manage</Button>
+            <Link
+              href="/watchlist"
+              className="inline-flex min-h-8 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-xs font-medium transition-all duration-200 ease-out hover:bg-[var(--color-surface-hover)] active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+            >
+              Manage
+            </Link>
           </div>
 
           {watchlistCoins.length === 0 ? (
