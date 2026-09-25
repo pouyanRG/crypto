@@ -1,4 +1,4 @@
-import Card from "../../components/ui/Card";
+import WatchlistClient from "../../components/watchlist/WatchlistClient";
 
 export const metadata = {
   title: "Watchlist",
@@ -6,17 +6,5 @@ export const metadata = {
 };
 
 export default function WatchlistPage() {
-  return (
-    <section className="flex min-h-[50vh] items-center justify-center">
-      <Card className="w-full max-w-md">
-        <h1 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-4">
-          Watchlist
-        </h1>
-        <p className="text-[var(--color-text-secondary)]">
-          Reading starred coins from localStorage and the empty state are
-          planned for a later product phase.
-        </p>
-      </Card>
-    </section>
-  );
+  return <WatchlistClient />;
 }

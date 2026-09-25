@@ -2,6 +2,7 @@
 
 import { Area, AreaChart, YAxis } from "recharts";
 
+/** @param {{ data?: Array<{ value: number }>, color?: string, id?: string, width?: number, height?: number }} props */
 export default function MiniAreaChart({ data = [], color = "var(--color-accent)", id = "mini", width = 140, height = 56 }) {
   if (data.length < 2) {
     return <span className="text-xs text-[var(--color-text-muted)]">Chart unavailable</span>;

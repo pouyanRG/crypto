@@ -1,46 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { useAppStore } from "../../lib/store/useAppStore";
 import Card from "../../components/ui/Card";
-import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import SearchBar from "../../components/market/SearchBar";
 import TabsBar from "../../components/market/TabsBar";
 import MarketTable from "../../components/market/MarketTable";
 
-const SORT_OPTIONS = [
-  { value: "market_cap_desc", label: "Market cap (high to low)" },
-  { value: "market_cap_asc", label: "Market cap (low to high)" },
-  { value: "price_desc", label: "Price (high to low)" },
-  { value: "price_asc", label: "Price (low to high)" },
-  { value: "change_24h_desc", label: "24h change (high to low)" },
-  { value: "change_24h_asc", label: "24h change (low to high)" },
-  { value: "volume_desc", label: "Volume (high to low)" },
-];
-
 const PER_PAGE = 50;
+const SORT_FIELDS = {
+  rank: "market_cap_rank",
+  price: "current_price",
+  change_1h: "price_change_percentage_1h_in_currency",
+  change_24h: "price_change_percentage_24h",
+  change_7d: "price_change_percentage_7d_in_currency",
+  volume: "total_volume",
+  market_cap: "market_cap",
+};
 
-function sortCoins(coins, sortKey) {
+function sortCoins(coins, sort) {
   const sorted = [...coins];
-  switch (sortKey) {
-    case "market_cap_asc":
-      return sorted.sort((a, b) => (a.market_cap ?? 0) - (b.market_cap ?? 0));
-    case "price_desc":
-      return sorted.sort((a, b) => (b.current_price ?? 0) - (a.current_price ?? 0));
-    case "price_asc":
-      return sorted.sort((a, b) => (a.current_price ?? 0) - (b.current_price ?? 0));
-    case "change_24h_desc":
-      return sorted.sort((a, b) => (b.price_change_percentage_24h ?? -Infinity) - (a.price_change_percentage_24h ?? -Infinity));
-    case "change_24h_asc":
-      return sorted.sort((a, b) => (a.price_change_percentage_24h ?? Infinity) - (b.price_change_percentage_24h ?? Infinity));
-    case "volume_desc":
-      return sorted.sort((a, b) => (b.total_volume ?? 0) - (a.total_volume ?? 0));
-    case "market_cap_desc":
-    default:
-      return sorted.sort((a, b) => (b.market_cap ?? 0) - (a.market_cap ?? 0));
-  }
+  const field = SORT_FIELDS[sort.key];
+  const direction = sort.direction === "asc" ? 1 : -1;
+  return sorted.sort((a, b) => {
+    const first = a[field];
+    const second = b[field];
+    if (first == null) return second == null ? 0 : 1;
+    if (second == null) return -1;
+    return (first - second) * direction;
+  });
 }
 
 function filterByTab(coins, tab) {
@@ -56,8 +46,14 @@ function filterByTab(coins, tab) {
 export default function MarketPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [sortKey, setSortKey] = useState("market_cap_desc");
+  const [sort, setSort] = useState({ key: "market_cap", direction: "desc" });
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 250);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const { data, isLoading, isError, refetch, isFetching } = useCoinsMarket({
     page,
@@ -67,10 +63,10 @@ export default function MarketPage() {
   const watchlistIds = useAppStore((state) => state.watchlistIds);
   const toggleWatchlist = useAppStore((state) => state.toggleWatchlist);
 
-  const coins = data ?? [];
+  const coins = useMemo(() => data ?? [], [data]);
 
   const visibleCoins = useMemo(() => {
-    const term = search.trim().toLowerCase();
+    const term = debouncedSearch.trim().toLowerCase();
     let result = coins;
 
     if (term) {
@@ -82,8 +78,15 @@ export default function MarketPage() {
     }
 
     result = filterByTab(result, activeTab);
-    return sortCoins(result, sortKey);
-  }, [coins, search, activeTab, sortKey]);
+    return sortCoins(result, sort);
+  }, [coins, debouncedSearch, activeTab, sort]);
+
+  const handleSort = (key) => {
+    setSort((current) => ({
+      key,
+      direction: current.key === key && current.direction === "desc" ? "asc" : "desc",
+    }));
+  };
 
   return (
     <section className="space-y-5">
@@ -94,31 +97,19 @@ export default function MarketPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TabsBar active={activeTab} onChange={setActiveTab} />
-        <div className="w-full max-w-xs sm:w-56">
-          <Select
-            id="market-sort"
-            label="Sort by"
-            value={sortKey}
-            onChange={(event) => setSortKey(event.target.value)}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </div>
       </div>
 
       <Card as="div" variant="outlined" className="p-0">
         <MarketTable
           coins={visibleCoins}
+          sort={sort}
+          onSort={handleSort}
           watchlistedIds={watchlistIds}
           onToggleWatchlist={(coin) => toggleWatchlist(coin.id)}
           loading={isLoading}
           error={isError ? "Could not load market data" : undefined}
           onRetry={refetch}
-          emptyMessage={search ? `No coins match "${search}"` : "No market data available"}
+          emptyMessage={debouncedSearch ? `No coins match "${debouncedSearch}"` : "No market data available"}
         />
       </Card>
 
