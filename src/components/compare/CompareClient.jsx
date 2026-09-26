@@ -128,10 +128,10 @@ export default function CompareClient() {
                     <label
                       key={option.id}
                       className={clsx(
-                        "flex min-w-0 cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
+                        "flex min-w-0 cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm transition-colors focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
                         checked
                           ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)]"
-                          : "border-[var(--color-border)] bg-[var(--color-surface)]",
+                          : "border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)]",
                       )}
                     >
                       <input

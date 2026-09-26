@@ -196,7 +196,12 @@ export default function PortfolioClient() {
         )}
       </div>
 
-      <Card as="form" onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <Card
+        as="form"
+        onSubmit={handleSubmit}
+        dir="rtl"
+        className="grid gap-4 text-right sm:grid-cols-2 lg:grid-cols-4"
+      >
         <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-2 border-b border-[var(--color-border-subtle)] pb-3">
           <span className="flex size-8 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-[var(--color-accent)]" aria-hidden="true">
             <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -291,42 +296,47 @@ export default function PortfolioClient() {
           )}
         </div>
 
-        <Input
-          id="portfolio-amount"
-          label="Amount"
-          type="number"
-          inputMode="decimal"
-          min="0"
-          step="any"
-          required
-          placeholder="e.g. 0.5"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-        />
+        <div className="sm:col-span-2 lg:col-span-4 grid gap-3 sm:grid-cols-3">
+          <Input
+            id="portfolio-amount"
+            label="مقدار"
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="any"
+            required
+            placeholder="مثلاً ۰.۵"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
 
-        <Input
-          id="portfolio-buy-price"
-          label="Buy price (USD)"
-          type="number"
-          inputMode="decimal"
-          min="0"
-          step="any"
-          required
-          placeholder="e.g. 42000"
-          value={buyPrice}
-          onChange={(event) => setBuyPrice(event.target.value)}
-          helperText="Average purchase price per coin"
-        />
+          <Input
+            id="portfolio-buy-price"
+            label="قیمت خرید (دلار)"
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="any"
+            required
+            placeholder="مثلاً ۴۲۰۰۰"
+            value={buyPrice}
+            onChange={(event) => setBuyPrice(event.target.value)}
+            helperText="میانگین قیمت خرید هر واحد"
+          />
 
-        <div className="flex flex-col justify-end gap-1.5">
-          {estimatedCost != null && (
-            <p className="text-xs text-[var(--color-text-secondary)]">
-              سرمایه‌گذاری تخمینی: <span className="font-tabular font-semibold text-[var(--color-text-primary)]">{formatUsd(estimatedCost)}</span>
-            </p>
-          )}
-          <Button type="submit" className="w-full">
-            Add asset
-          </Button>
+          <div className="flex flex-col justify-end gap-1.5">
+            {estimatedCost != null && (
+              <p className="text-xs text-[var(--color-text-secondary)]">
+                سرمایه‌گذاری تخمینی:{" "}
+                <span className="font-tabular font-semibold text-[var(--color-text-primary)]">
+                  {formatUsd(estimatedCost)}
+                </span>
+              </p>
+            )}
+            <Button type="submit" className="w-full">
+              افزودن دارایی
+            </Button>
+          </div>
         </div>
 
         {formError && (
