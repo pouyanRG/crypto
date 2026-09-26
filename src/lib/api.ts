@@ -57,6 +57,11 @@ export function getCoinChartUrl(id: string, days = 30): string {
   return `${API_BASE_URL}/coins/${encodeURIComponent(id)}/market_chart?${params}`;
 }
 
+export function getCoinSearchUrl(query: string): string {
+  const params = new URLSearchParams({ query });
+  return `${API_BASE_URL}/search?${params}`;
+}
+
 export function normalizeChartData(chart: ChartResponse | undefined): ChartPoint[] {
   return (chart?.prices ?? []).filter(([timestamp, price]) => Number.isFinite(timestamp) && Number.isFinite(price)).map(([timestamp, price]) => ({ timestamp, price }));
 }

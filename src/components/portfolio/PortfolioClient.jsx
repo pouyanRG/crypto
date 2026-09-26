@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import clsx from "clsx";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
+import useCoinSearch from "../../lib/hooks/useCoinSearch";
 import { useAppStore } from "../../lib/store/useAppStore";
 import { calcPortfolioSummary } from "../../lib/portfolio";
 import { formatPercent, formatPrice, formatUsd } from "../../lib/formatters";
@@ -10,9 +12,10 @@ import { MARKET_COIN_IDS } from "../../lib/coinAssets";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
-import Select from "../ui/Select";
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
+
+const TOP_COIN_IDS = MARKET_COIN_IDS.slice(0, 20);
 
 function PnLValue({ value, asPercent = false }) {
   if (value == null || !Number.isFinite(value)) {
@@ -34,10 +37,20 @@ export default function PortfolioClient() {
   const [buyPrice, setBuyPrice] = useState("");
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [coinSearchTerm, setCoinSearchTerm] = useState("");
+  const [debouncedCoinSearch, setDebouncedCoinSearch] = useState("");
+  const [selectedCoinLabel, setSelectedCoinLabel] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedCoinSearch(coinSearchTerm), 250);
+    return () => clearTimeout(timeout);
+  }, [coinSearchTerm]);
+
+  const { data: searchResults = [], isFetching: searchLoading } = useCoinSearch(debouncedCoinSearch);
 
   const portfolioIds = useMemo(() => portfolio.map((asset) => asset.id), [portfolio]);
   const selectIds = useMemo(
-    () => [...new Set([...MARKET_COIN_IDS, ...portfolioIds])],
+    () => [...new Set([...TOP_COIN_IDS, ...portfolioIds])],
     [portfolioIds],
   );
 
@@ -96,13 +109,13 @@ export default function PortfolioClient() {
     [portfolio, pricesById],
   );
 
-  const handleCoinChange = (event) => {
-    const nextId = event.target.value;
-    setCoinId(nextId);
-    const option = coinOptions.find((item) => item.id === nextId);
-    if (option?.currentPrice != null && buyPrice === "") {
-      setBuyPrice(String(option.currentPrice));
+  const handleCoinSelect = (id, currentPrice, label) => {
+    setCoinId(id);
+    setSelectedCoinLabel(label ?? coinOptions.find((option) => option.id === id)?.label ?? id);
+    if (currentPrice != null && buyPrice === "") {
+      setBuyPrice(String(currentPrice));
     }
+    setCoinSearchTerm("");
   };
 
   const handleSubmit = (event) => {
@@ -140,6 +153,7 @@ export default function PortfolioClient() {
     );
 
     setCoinId("");
+    setSelectedCoinLabel("");
     setAmount("");
     setBuyPrice("");
   };
@@ -192,21 +206,90 @@ export default function PortfolioClient() {
           <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">افزودن دارایی جدید</h2>
         </div>
 
-        <Select
-          id="portfolio-coin"
-          label="Coin"
-          required
-          placeholder="Select a coin"
-          value={coinId}
-          onChange={handleCoinChange}
-          disabled={marketsLoading}
-        >
-          {coinOptions.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
-          ))}
-        </Select>
+        <div className="sm:col-span-2 lg:col-span-4 grid gap-2">
+          <p className="text-sm font-medium text-[var(--color-text-primary)]">
+            Coin <span aria-hidden="true">*</span>
+          </p>
+
+          {marketsLoading ? (
+            <p className="text-sm text-[var(--color-text-muted)]">در حال بارگذاری لیست کوین‌ها...</p>
+          ) : (
+            <div
+              role="radiogroup"
+              aria-label="کوین‌های برتر"
+              className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+            >
+              {coinOptions
+                .filter((option) => TOP_COIN_IDS.includes(option.id))
+                .map((option) => {
+                  const selected = coinId === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => handleCoinSelect(option.id, option.currentPrice, option.label)}
+                      className={clsx(
+                        "truncate rounded-[var(--radius-md)] border px-3 py-2 text-left text-sm transition-colors",
+                        selected
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
+                          : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+
+          <Input
+            id="portfolio-coin-search"
+            label="جستجوی کوین‌های دیگر"
+            placeholder="مثلاً dogecoin"
+            value={coinSearchTerm}
+            onChange={(event) => setCoinSearchTerm(event.target.value)}
+            onClear={() => setCoinSearchTerm("")}
+          />
+
+          {debouncedCoinSearch.trim().length >= 2 && (
+            <ul className="max-h-48 overflow-y-auto rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+              {searchLoading && (
+                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">در حال جستجو...</li>
+              )}
+              {!searchLoading && searchResults.length === 0 && (
+                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">نتیجه‌ای یافت نشد</li>
+              )}
+              {searchResults.map((coin) => (
+                <li key={coin.id}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleCoinSelect(coin.id, null, `${coin.name} (${coin.symbol.toUpperCase()})`)
+                    }
+                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-[var(--color-surface-hover)]"
+                  >
+                    <span>
+                      {coin.name}{" "}
+                      <span className="uppercase text-[var(--color-text-muted)]">{coin.symbol}</span>
+                    </span>
+                    {coin.rank && (
+                      <span className="text-xs text-[var(--color-text-muted)]">#{coin.rank}</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {coinId && (
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              انتخاب‌شده:{" "}
+              <span className="font-medium text-[var(--color-text-primary)]">{selectedCoinLabel}</span>
+            </p>
+          )}
+        </div>
 
         <Input
           id="portfolio-amount"
