@@ -44,9 +44,27 @@ export const useAppStore = create<AppState>()(
             : [...state.watchlistIds, id],
         })),
       addPortfolioAsset: (asset) =>
-        set((state) => ({
-          portfolio: [...state.portfolio.filter((item) => item.id !== asset.id), asset],
-        })),
+        set((state) => {
+          const existing = state.portfolio.find((item) => item.id === asset.id);
+          if (!existing) {
+            return { portfolio: [...state.portfolio, asset] };
+          }
+          const totalAmount = existing.amount + asset.amount;
+          const weightedBuyPrice =
+            (existing.amount * existing.buyPrice + asset.amount * asset.buyPrice) / totalAmount;
+          return {
+            portfolio: state.portfolio.map((item) =>
+              item.id === asset.id
+                ? {
+                    ...item,
+                    amount: totalAmount,
+                    buyPrice: weightedBuyPrice,
+                    purchasedAt: asset.purchasedAt,
+                  }
+                : item,
+            ),
+          };
+        }),
       updatePortfolioAsset: (id, asset) =>
         set((state) => ({
           portfolio: state.portfolio.map((item) => (item.id === id ? { id, ...asset } : item)),

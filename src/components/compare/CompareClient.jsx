@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
+import clsx from "clsx";
 import { buildCompareChartRows } from "../../lib/compare";
 import { fetcher, getCoinChartUrl, normalizeChartData } from "../../lib/api";
 import { MARKET_COIN_IDS } from "../../lib/coinAssets";
@@ -25,6 +26,7 @@ const DEFAULT_SELECTED = ["bitcoin", "ethereum"];
 
 export default function CompareClient() {
   const [selectedIds, setSelectedIds] = useState(DEFAULT_SELECTED);
+  const [limitMsg, setLimitMsg] = useState(false);
   const [days, setDays] = useState(30);
 
   const { data: marketCoins, isLoading: listLoading } = useCoinsMarket({
@@ -79,11 +81,20 @@ export default function CompareClient() {
     selectedIds.length >= MIN_COINS && chartQueries.some((query) => query.isLoading);
   const chartErrors = chartQueries.filter((query) => query.isError);
 
-  const handleSelectionChange = (event) => {
-    const next = Array.from(event.target.selectedOptions, (option) => option.value);
-    const unique = [...new Set(next)];
-    if (unique.length > MAX_COINS) return;
-    setSelectedIds(unique);
+  const handleSelectionToggle = (id) => {
+    if (selectedIds.includes(id)) {
+      setLimitMsg(false);
+      setSelectedIds((previous) => previous.filter((selectedId) => selectedId !== id));
+      return;
+    }
+    if (selectedIds.length >= MAX_COINS) {
+      setLimitMsg(true);
+      return;
+    }
+    setLimitMsg(false);
+    setSelectedIds((previous) =>
+      previous.includes(id) || previous.length >= MAX_COINS ? previous : [...previous, id],
+    );
   };
 
   return (
@@ -98,34 +109,51 @@ export default function CompareClient() {
       <Card className="space-y-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid gap-1.5">
-            <label
-              htmlFor="compare-coin-select"
-              className="text-sm font-medium text-[var(--color-text-primary)]"
-            >
+            <p className="text-sm font-medium text-[var(--color-text-primary)]">
               Coins (select {MIN_COINS}–{MAX_COINS})
-            </label>
+            </p>
             {listLoading ? (
               <Skeleton className="h-40 w-full" />
             ) : (
-              <select
+              <div
                 id="compare-coin-select"
-                multiple
-                size={8}
-                value={selectedIds}
-                onChange={handleSelectionChange}
+                role="group"
+                aria-label="Coins to compare"
                 aria-describedby="compare-coin-help"
-                className="min-h-40 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus-visible:border-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent-muted)]"
+                className="grid grid-cols-2 gap-2 sm:grid-cols-3"
               >
-                {coinOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                {coinOptions.map((option) => {
+                  const checked = selectedIds.includes(option.id);
+                  return (
+                    <label
+                      key={option.id}
+                      className={clsx(
+                        "flex min-w-0 cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
+                        checked
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)]"
+                          : "border-[var(--color-border)] bg-[var(--color-surface)]",
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={checked}
+                        onChange={() => handleSelectionToggle(option.id)}
+                      />
+                      <span className="truncate">{option.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
             )}
             <p id="compare-coin-help" className="text-xs text-[var(--color-text-secondary)]">
-              Hold Ctrl (Windows) or Cmd (Mac) to select multiple coins. Duplicates are ignored.
+              Select up to {MAX_COINS} coins. Duplicates are ignored.
             </p>
+            {limitMsg && (
+              <p role="alert" className="text-xs text-[var(--color-down)]">
+                You can compare up to {MAX_COINS} coins at a time.
+              </p>
+            )}
           </div>
 
           <Tabs

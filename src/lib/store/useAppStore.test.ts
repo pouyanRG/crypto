@@ -31,6 +31,30 @@ describe("app persistence state", () => {
     expect(useAppStore.getState().portfolio).toEqual([]);
   });
 
+  it("merges duplicate portfolio assets using a weighted buy price", () => {
+    useAppStore.getState().addPortfolioAsset({
+      id: "bitcoin",
+      amount: 2,
+      buyPrice: 30000,
+      purchasedAt: "2026-01-01T00:00:00.000Z",
+    });
+    useAppStore.getState().addPortfolioAsset({
+      id: "bitcoin",
+      amount: 1,
+      buyPrice: 36000,
+      purchasedAt: "2026-02-01T00:00:00.000Z",
+    });
+
+    expect(useAppStore.getState().portfolio).toEqual([
+      {
+        id: "bitcoin",
+        amount: 3,
+        buyPrice: 32000,
+        purchasedAt: "2026-02-01T00:00:00.000Z",
+      },
+    ]);
+  });
+
   it("ignores malformed persisted JSON", () => {
     expect(safeLocalStorage.getItem("malformed")).toBeNull();
   });

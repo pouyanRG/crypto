@@ -9,7 +9,8 @@ import SearchBar from "../../components/market/SearchBar";
 import TabsBar from "../../components/market/TabsBar";
 import MarketTable from "../../components/market/MarketTable";
 
-const PER_PAGE = 50;
+const PER_PAGE = 250;
+const PAGE_SIZE = 50;
 const SORT_FIELDS = {
   rank: "market_cap_rank",
   price: "current_price",
@@ -51,12 +52,15 @@ export default function MarketPage() {
   const [sort, setSort] = useState({ key: "market_cap", direction: "desc" });
 
   useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedSearch(search), 250);
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 250);
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const { data, isLoading, isError, refetch, isFetching } = useCoinsMarket({
-    page,
+  const { data, isLoading, isError, refetch } = useCoinsMarket({
+    page: 1,
     perPage: PER_PAGE,
   });
 
@@ -81,7 +85,11 @@ export default function MarketPage() {
     return sortCoins(result, sort);
   }, [coins, debouncedSearch, activeTab, sort]);
 
+  const pageCount = Math.max(1, Math.ceil(visibleCoins.length / PAGE_SIZE));
+  const paginatedCoins = visibleCoins.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   const handleSort = (key) => {
+    setPage(1);
     setSort((current) => ({
       key,
       direction: current.key === key && current.direction === "desc" ? "asc" : "desc",
@@ -96,12 +104,18 @@ export default function MarketPage() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <TabsBar active={activeTab} onChange={setActiveTab} />
+        <TabsBar
+          active={activeTab}
+          onChange={(tab) => {
+            setActiveTab(tab);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Card as="div" variant="outlined" className="p-0">
         <MarketTable
-          coins={visibleCoins}
+          coins={paginatedCoins}
           sort={sort}
           onSort={handleSort}
           watchlistedIds={watchlistIds}
@@ -117,17 +131,17 @@ export default function MarketPage() {
         <Button
           variant="outline"
           size="sm"
-          disabled={page === 1 || isFetching}
+          disabled={page === 1}
           onClick={() => setPage((current) => Math.max(1, current - 1))}
         >
           Previous
         </Button>
-        <span className="text-sm text-[var(--color-text-muted)]">Page {page}</span>
+        <span className="text-sm text-[var(--color-text-muted)]">Page {page} of {pageCount}</span>
         <Button
           variant="outline"
           size="sm"
-          disabled={isFetching || coins.length < PER_PAGE}
-          onClick={() => setPage((current) => current + 1)}
+          disabled={page >= pageCount}
+          onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
         >
           Next
         </Button>

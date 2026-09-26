@@ -31,6 +31,7 @@ export default function PortfolioClient() {
   const [amount, setAmount] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
   const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const portfolioIds = useMemo(() => portfolio.map((asset) => asset.id), [portfolio]);
   const selectIds = useMemo(
@@ -105,6 +106,7 @@ export default function PortfolioClient() {
   const handleSubmit = (event) => {
     event.preventDefault();
     setFormError("");
+    setSuccessMessage("");
 
     const parsedAmount = Number(amount);
     const parsedBuyPrice = Number(buyPrice);
@@ -122,12 +124,18 @@ export default function PortfolioClient() {
       return;
     }
 
+    const alreadyHeld = portfolio.some((asset) => asset.id === coinId);
     addPortfolioAsset({
       id: coinId,
       amount: parsedAmount,
       buyPrice: parsedBuyPrice,
       purchasedAt: new Date().toISOString(),
     });
+    setSuccessMessage(
+      alreadyHeld
+        ? "Added to your existing holding. The average buy price has been updated."
+        : "Asset added to your portfolio.",
+    );
 
     setCoinId("");
     setAmount("");
@@ -216,6 +224,11 @@ export default function PortfolioClient() {
         {formError && (
           <p className="sm:col-span-2 lg:col-span-4 text-sm text-[var(--color-down)]" role="alert">
             {formError}
+          </p>
+        )}
+        {successMessage && (
+          <p className="sm:col-span-2 lg:col-span-4 text-sm text-[var(--color-up)]" role="status">
+            {successMessage}
           </p>
         )}
         {marketsError && (
