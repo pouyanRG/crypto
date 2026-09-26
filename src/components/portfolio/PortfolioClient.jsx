@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { useAppStore } from "../../lib/store/useAppStore";
 import { calcPortfolioSummary } from "../../lib/portfolio";
@@ -23,6 +24,7 @@ function PnLValue({ value, asPercent = false }) {
 }
 
 export default function PortfolioClient() {
+  const router = useRouter();
   const portfolio = useAppStore((state) => state.portfolio);
   const addPortfolioAsset = useAppStore((state) => state.addPortfolioAsset);
   const removePortfolioAsset = useAppStore((state) => state.removePortfolioAsset);
@@ -142,6 +144,15 @@ export default function PortfolioClient() {
     setBuyPrice("");
   };
 
+  const estimatedCost = useMemo(() => {
+    const parsedAmount = Number(amount);
+    const parsedBuyPrice = Number(buyPrice);
+    if (!Number.isFinite(parsedAmount) || !Number.isFinite(parsedBuyPrice) || parsedAmount <= 0 || parsedBuyPrice < 0) {
+      return null;
+    }
+    return parsedAmount * parsedBuyPrice;
+  }, [amount, buyPrice]);
+
   const handleRemove = (id, name) => {
     const label = name || id;
     if (typeof window !== "undefined" && !window.confirm(`Remove ${label} from your portfolio?`)) {
@@ -172,6 +183,15 @@ export default function PortfolioClient() {
       </div>
 
       <Card as="form" onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-2 border-b border-[var(--color-border-subtle)] pb-3">
+          <span className="flex size-8 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-[var(--color-accent)]" aria-hidden="true">
+            <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </span>
+          <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">افزودن دارایی جدید</h2>
+        </div>
+
         <Select
           id="portfolio-coin"
           label="Coin"
@@ -215,7 +235,12 @@ export default function PortfolioClient() {
           helperText="Average purchase price per coin"
         />
 
-        <div className="flex items-end">
+        <div className="flex flex-col justify-end gap-1.5">
+          {estimatedCost != null && (
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              سرمایه‌گذاری تخمینی: <span className="font-tabular font-semibold text-[var(--color-text-primary)]">{formatUsd(estimatedCost)}</span>
+            </p>
+          )}
           <Button type="submit" className="w-full">
             Add asset
           </Button>
@@ -241,11 +266,47 @@ export default function PortfolioClient() {
         )}
       </Card>
 
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Card as="div" variant="compact">
+          <p className="text-xs text-[var(--color-text-muted)]">Total invested</p>
+          <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
+            {formatUsd(summary.totalCost)}
+          </p>
+        </Card>
+        <Card as="div" variant="compact">
+          <p className="text-xs text-[var(--color-text-muted)]">Current value</p>
+          <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
+            {summary.totalValue == null ? "—" : formatUsd(summary.totalValue)}
+          </p>
+        </Card>
+        <Card as="div" variant="compact">
+          <p className="text-xs text-[var(--color-text-muted)]">P/L ($)</p>
+          <p className="mt-2 text-lg font-semibold">
+            <PnLValue value={summary.absolutePnL} />
+          </p>
+        </Card>
+        <Card as="div" variant="compact">
+          <p className="text-xs text-[var(--color-text-muted)]">P/L (%)</p>
+          <p className="mt-2 text-lg font-semibold">
+            <PnLValue value={summary.percentPnL} asPercent />
+          </p>
+        </Card>
+      </div>
+
       {portfolio.length === 0 ? (
         <EmptyState
-          title="No assets yet"
-          description="Add a coin, amount, and buy price to start tracking local P/L."
-        />
+          title="هنوز دارایی‌ای اضافه نکردی"
+          description="یک کوین، مقدار و قیمت خرید وارد کن تا سود/زیان لحظه‌ای‌ت محاسبه بشه."
+          actionLabel="مشاهده Markets"
+          onAction={() => router.push("/market")}
+        >
+          <span className="flex size-12 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-[var(--color-accent)]" aria-hidden="true">
+            <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="7" width="18" height="13" rx="2" />
+              <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18" />
+            </svg>
+          </span>
+        </EmptyState>
       ) : portfolioPricesError ? (
         <ErrorState
           title="Prices unavailable"
@@ -253,35 +314,7 @@ export default function PortfolioClient() {
           onRetry={refetchPortfolioPrices}
         />
       ) : (
-        <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Card as="div" variant="compact">
-              <p className="text-xs text-[var(--color-text-muted)]">Total invested</p>
-              <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
-                {formatUsd(summary.totalCost)}
-              </p>
-            </Card>
-            <Card as="div" variant="compact">
-              <p className="text-xs text-[var(--color-text-muted)]">Current value</p>
-              <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
-                {summary.totalValue == null ? "—" : formatUsd(summary.totalValue)}
-              </p>
-            </Card>
-            <Card as="div" variant="compact">
-              <p className="text-xs text-[var(--color-text-muted)]">P/L ($)</p>
-              <p className="mt-2 text-lg font-semibold">
-                <PnLValue value={summary.absolutePnL} />
-              </p>
-            </Card>
-            <Card as="div" variant="compact">
-              <p className="text-xs text-[var(--color-text-muted)]">P/L (%)</p>
-              <p className="mt-2 text-lg font-semibold">
-                <PnLValue value={summary.percentPnL} asPercent />
-              </p>
-            </Card>
-          </div>
-
-          <Card as="div" variant="outlined" className="overflow-x-auto p-0">
+        <Card as="div" variant="outlined" className="overflow-x-auto p-0">
             <table className="min-w-full text-left text-sm">
               <caption className="sr-only">Portfolio holdings and profit/loss</caption>
               <thead className="border-b border-[var(--color-border)] text-[var(--color-text-muted)]">
@@ -330,7 +363,6 @@ export default function PortfolioClient() {
               </tbody>
             </table>
           </Card>
-        </>
       )}
     </section>
   );

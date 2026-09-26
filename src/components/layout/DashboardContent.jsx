@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import { formatCompact, formatPrice } from "../../lib/formatters";
@@ -22,7 +22,12 @@ const LineChartWidget = dynamic(() => import("../widgets/LineChartWidget"), { ss
 
 export default function DashboardContent() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { data, isLoading, isError } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
+  const [chartNow, setChartNow] = useState(0);
+  const { data, isLoading, isError, refetch } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setChartNow(Date.now()), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
   const coins = data ?? [];
   const watchlistIds = useAppStore((state) => state.watchlistIds);
   const marketCapSeries = useMemo(() => {
@@ -31,14 +36,16 @@ export default function DashboardContent() {
     );
     if (!list.length) return [];
     const length = Math.min(...list.map((coin) => coin.sparkline_in_7d.price.length));
+    const stepMs = (7 * 24 * 60 * 60 * 1000) / length;
     return Array.from({ length }, (_, index) => ({
+      timestamp: chartNow - (length - 1 - index) * stepMs,
       value: list.reduce((sum, coin) => {
         const prices = coin.sparkline_in_7d.price;
         const supply = coin.market_cap / coin.current_price;
         return sum + prices[prices.length - length + index] * supply;
       }, 0),
     }));
-  }, [data]);
+  }, [chartNow, data]);
   const featured = isExpanded ? coins : coins.slice(0, 3);
   const watchlistCoins = watchlistIds
     .map((id) => coins.find((coin) => coin.id === id))
@@ -62,9 +69,23 @@ export default function DashboardContent() {
 
       <section aria-label="Total market capitalization chart">
         {isLoading ? (
-          <Card><Skeleton className="h-64 w-full" /></Card>
+          <Card>
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <h2 className="text-base font-semibold text-[var(--color-text-primary)]">Market Cap · 7 days</h2>
+              <span className="text-xs text-[var(--color-text-muted)]">USD</span>
+            </div>
+            <Skeleton className="h-64 w-full" />
+          </Card>
+        ) : isError ? (
+          <Card>
+            <ErrorState
+              title="داده کل ارزش بازار در دسترس نیست"
+              description="بازیابی داده مارکت‌کپ ۷ روزه با خطا مواجه شد."
+              onRetry={refetch}
+            />
+          </Card>
         ) : (
-          <LineChartWidget title="Market Cap · 7 days" data={marketCapSeries} dataKey="value" />
+          <LineChartWidget title="Market Cap · 7 days (تخمینی)" data={marketCapSeries} dataKey="value" xKey="timestamp" />
         )}
       </section>
 
