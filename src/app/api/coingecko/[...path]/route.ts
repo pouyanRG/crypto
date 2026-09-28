@@ -23,14 +23,14 @@ export async function GET(request: Request, context: RouteContext) {
   headers.set("x-cg-demo-api-key", apiKey);
 
   try {
-    const response = await fetch(upstreamUrl, { headers, cache: "no-store" });
+    const response = await fetch(upstreamUrl, { headers, next: { revalidate: 60 } });
     const body = await response.text();
 
     return new Response(body, {
       status: response.status,
       headers: {
         "content-type": response.headers.get("content-type") ?? "application/json",
-        "cache-control": "no-store",
+        "cache-control": "public, s-maxage=60, stale-while-revalidate=300",
       },
     });
   } catch {

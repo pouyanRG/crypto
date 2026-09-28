@@ -5,12 +5,20 @@ import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { useAppStore } from "../../lib/store/useAppStore";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import Select from "../../components/ui/Select";
 import SearchBar from "../../components/market/SearchBar";
 import TabsBar from "../../components/market/TabsBar";
 import MarketTable from "../../components/market/MarketTable";
 
-const PER_PAGE = 250;
+const PER_PAGE = 100;
 const PAGE_SIZE = 50;
+const SORT_OPTIONS = [
+  ["market_cap:desc", "Market cap ↓"],
+  ["price:desc", "Price ↓"],
+  ["change_24h:desc", "24h change ↓"],
+  ["change_24h:asc", "24h change ↑"],
+  ["volume:desc", "Volume ↓"],
+];
 const SORT_FIELDS = {
   rank: "market_cap_rank",
   price: "current_price",
@@ -103,6 +111,21 @@ export default function MarketPage() {
         <SearchBar value={search} onChange={setSearch} />
       </div>
 
+      <div className="md:hidden">
+        <Select
+          id="market-sort"
+          aria-label="Sort coins"
+          value={`${sort.key}:${sort.direction}`}
+          onChange={(event) => {
+            const [key, direction] = event.target.value.split(":");
+            setPage(1);
+            setSort({ key, direction });
+          }}
+        >
+          {SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </Select>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TabsBar
           active={activeTab}
@@ -113,7 +136,7 @@ export default function MarketPage() {
         />
       </div>
 
-      <Card as="div" variant="outlined" className="p-0">
+      <Card as="div" variant="outlined" className="p-0!">
         <MarketTable
           coins={paginatedCoins}
           sort={sort}
@@ -132,7 +155,10 @@ export default function MarketPage() {
           variant="outline"
           size="sm"
           disabled={page === 1}
-          onClick={() => setPage((current) => Math.max(1, current - 1))}
+          onClick={() => {
+            setPage((current) => Math.max(1, current - 1));
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         >
           Previous
         </Button>
@@ -141,7 +167,10 @@ export default function MarketPage() {
           variant="outline"
           size="sm"
           disabled={page >= pageCount}
-          onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+          onClick={() => {
+            setPage((current) => Math.min(pageCount, current + 1));
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         >
           Next
         </Button>

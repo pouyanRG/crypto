@@ -63,7 +63,7 @@ export default function MarketRow({ coin, isWatchlisted = false, onToggleWatchli
       <TableCell numeric><Change value={coin.price_change_percentage_7d_in_currency} /></TableCell>
       <TableCell numeric className="text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</TableCell>
       <TableCell numeric className="text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</TableCell>
-      <TableCell><Sparkline data={coin.sparkline_in_7d?.price?.map((value) => ({ value }))} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></TableCell>
+      <TableCell><Sparkline data={coin.sparkline_in_7d?.price?.map((value) => ({ value }))} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} className="h-8 w-24" /></TableCell>
       <TableCell className="sticky right-0 z-10 border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-center shadow-[-1px_0_0_var(--color-border-subtle)]">
         <Button
           size="icon"

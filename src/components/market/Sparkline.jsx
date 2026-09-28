@@ -1,29 +1,35 @@
-"use client";
+export default function Sparkline({ data = [], positive = true, className = "h-7 w-16" }) {
+  const raw = data.map((point) => point.value).filter(Number.isFinite);
+  if (raw.length < 2) return <span className="text-xs text-[var(--color-text-muted)]">–</span>;
 
-import { Line, LineChart, Tooltip, YAxis } from "recharts";
-import { formatPrice } from "../../lib/formatters";
-
-const paddedDomain = ([min, max]) => {
-  if (min === max) return [min - 1, max + 1];
-  const pad = (max - min) * 0.1;
-  return [min - pad, max + pad];
-};
-
-export default function Sparkline({ data = [], positive = true }) {
-  if (data.length < 2) return <span className="text-xs text-[var(--color-text-muted)]">No 7d data</span>;
+  const step = Math.ceil(raw.length / 40);
+  const values = raw.filter((_, index) => index % step === 0 || index === raw.length - 1);
+  const min = Math.min(...values);
+  const range = Math.max(...values) - min || 1;
+  const width = 64;
+  const height = 28;
+  const padding = 2;
+  const points = values
+    .map((value, index) => `${((index / (values.length - 1)) * width).toFixed(1)},${(height - padding - ((value - min) / range) * (height - padding * 2)).toFixed(1)}`)
+    .join(" ");
 
   return (
-    <div className="h-8 w-24" aria-label={positive ? "Positive seven-day trend" : "Negative seven-day trend"}>
-      <LineChart width={96} height={32} data={data} margin={{ top: 2, right: 1, bottom: 2, left: 1 }}>
-        <YAxis hide domain={paddedDomain} />
-        <Tooltip
-          cursor={{ stroke: "var(--color-border)" }}
-          contentStyle={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", background: "var(--color-chart-tooltip)", color: "var(--color-text-primary)", fontSize: "0.7rem", padding: "0.35rem 0.5rem" }}
-          labelFormatter={() => "7-day point"}
-          formatter={(value) => [formatPrice(value), "Price"]}
-        />
-        <Line type="monotone" dataKey="value" stroke={positive ? "var(--color-up)" : "var(--color-down)"} strokeWidth={1.5} dot={false} isAnimationActive={false} />
-      </LineChart>
-    </div>
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="none"
+      role="img"
+      className={className}
+      aria-label={positive ? "Positive seven-day trend" : "Negative seven-day trend"}
+    >
+      <polyline
+        points={points}
+        fill="none"
+        stroke={positive ? "var(--color-up)" : "var(--color-down)"}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
   );
 }

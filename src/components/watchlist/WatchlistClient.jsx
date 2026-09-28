@@ -94,7 +94,7 @@ export default function WatchlistClient() {
           onRetry={refetch}
         />
       ) : (
-        <Card as="div" variant="outlined" className="p-0">
+        <Card as="div" variant="outlined" className="p-0!">
           <MarketTable
             coins={coins}
             sort={sort}

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Nav from "./Nav";
-import NavIcon from "./NavIcon";
 import ThemeSwitcher from "./ThemeSwitcher";
 import LiveDataSourceStatus from "./LiveDataSourceStatus";
 
@@ -44,13 +43,6 @@ export default function Header() {
             <LiveDataSourceStatus />
           </span>
           <ThemeSwitcher />
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="inline-flex size-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] md:hidden"
-          >
-            <NavIcon name="menu" />
-          </button>
         </div>
       </div>
     </header>
