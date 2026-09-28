@@ -85,7 +85,7 @@ export default function DashboardContent() {
             />
           </Card>
         ) : (
-          <LineChartWidget title="Market Cap · 7 days (تخمینی)" data={marketCapSeries} dataKey="value" xKey="timestamp" />
+          <LineChartWidget title="Market Cap · 7 days " data={marketCapSeries} dataKey="value" xKey="timestamp" />
         )}
       </section>
 

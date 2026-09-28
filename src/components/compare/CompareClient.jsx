@@ -120,7 +120,7 @@ export default function CompareClient() {
                 role="group"
                 aria-label="Coins to compare"
                 aria-describedby="compare-coin-help"
-                className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+                className="flex flex-wrap gap-2"
               >
                 {coinOptions.map((option) => {
                   const checked = selectedIds.includes(option.id);
@@ -128,10 +128,10 @@ export default function CompareClient() {
                     <label
                       key={option.id}
                       className={clsx(
-                        "flex min-w-0 cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2 text-sm transition-colors focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
+                        "flex min-h-9 min-w-0 max-w-full cursor-pointer items-center rounded-[var(--radius-pill)] border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
                         checked
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)]"
-                          : "border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)]",
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
+                          : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]",
                       )}
                     >
                       <input

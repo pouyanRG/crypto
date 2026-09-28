@@ -30,10 +30,12 @@ export default function Header() {
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/90 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-8">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2.5 text-base font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+          className="flex min-w-0 items-center gap-2.5 text-sm font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:text-base"
         >
           <BrandMark />
-          <span className="truncate tracking-[-0.02em]">Northstar Ledger</span>
+          <span className="whitespace-nowrap tracking-[-0.02em]">
+            Northstar<span className="hidden sm:inline"> Ledger</span>
+          </span>
         </Link>
         <LiveBadge />
         <Nav />

@@ -321,7 +321,6 @@ export default function PortfolioClient() {
             placeholder="مثلاً ۴۲۰۰۰"
             value={buyPrice}
             onChange={(event) => setBuyPrice(event.target.value)}
-            helperText="میانگین قیمت خرید هر واحد"
           />
 
           <div className="flex flex-col justify-end gap-1.5">
