@@ -30,7 +30,9 @@ export async function GET(request: Request, context: RouteContext) {
       status: response.status,
       headers: {
         "content-type": response.headers.get("content-type") ?? "application/json",
-        "cache-control": "public, s-maxage=60, stale-while-revalidate=300",
+        "cache-control": response.ok
+          ? "public, s-maxage=60, stale-while-revalidate=300"
+          : "no-store",
       },
     });
   } catch {

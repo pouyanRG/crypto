@@ -24,6 +24,15 @@ const RANGE_TABS = [
 
 const DEFAULT_SELECTED = ["bitcoin", "ethereum"];
 
+function combineChartQueries(results) {
+  return {
+    seriesData: results.map((result) => result.data),
+    loading: results.some((result) => result.isLoading),
+    errors: results.map((result) => result.isError),
+    refetch: results.map((result) => result.refetch),
+  };
+}
+
 export default function CompareClient() {
   const [selectedIds, setSelectedIds] = useState(DEFAULT_SELECTED);
   const [limitMsg, setLimitMsg] = useState(false);
@@ -63,6 +72,7 @@ export default function CompareClient() {
       retry: (failureCount, error) =>
         failureCount < 2 && (error?.status === 429 || error?.status >= 500),
     })),
+    combine: combineChartQueries,
   });
 
   const seriesMeta = useMemo(
@@ -70,16 +80,18 @@ export default function CompareClient() {
       selectedIds.map((id, index) => ({
         id,
         label: labelById[id] ?? id,
-        points: chartQueries[index]?.data ?? [],
+        points: chartQueries.seriesData[index] ?? [],
       })),
-    [selectedIds, labelById, chartQueries],
+    [selectedIds, labelById, chartQueries.seriesData],
   );
 
-  const chartRows = useMemo(() => buildCompareChartRows(seriesMeta), [seriesMeta]);
+  const chartResult = useMemo(() => buildCompareChartRows(seriesMeta), [seriesMeta]);
+  const skippedIds = chartResult.skippedIds;
+  const availableSeries = seriesMeta.filter(({ id }) => !skippedIds.includes(id));
 
   const anyChartLoading =
-    selectedIds.length >= MIN_COINS && chartQueries.some((query) => query.isLoading);
-  const chartErrors = chartQueries.filter((query) => query.isError);
+    selectedIds.length >= MIN_COINS && chartQueries.loading;
+  const hasChartErrors = chartQueries.errors.some(Boolean);
 
   const handleSelectionToggle = (id) => {
     if (selectedIds.includes(id)) {
@@ -176,19 +188,33 @@ export default function CompareClient() {
           <div className="flex h-72 items-center justify-center text-sm text-[var(--color-text-muted)]">
             Pick at least two coins to draw the chart.
           </div>
-        ) : chartErrors.length > 0 ? (
+        ) : hasChartErrors ? (
           <ErrorState
             title="Could not load chart data"
             description="One or more price histories failed to load. Try again in a moment."
-            onRetry={() => chartQueries.forEach((query) => query.refetch())}
+            onRetry={() => chartQueries.refetch.forEach((refetch) => refetch())}
           />
         ) : anyChartLoading ? (
           <Skeleton className="h-72 w-full" />
         ) : (
-          <CompareNormalizedChart
-            data={chartRows}
-            series={seriesMeta.map(({ id, label }) => ({ id, label }))}
-          />
+          <>
+            {skippedIds.length > 0 && (
+              <p role="status" className="mb-3 text-sm text-[var(--color-text-secondary)]">
+                Price data is unavailable for:{" "}
+                {skippedIds.map((id) => labelById[id] ?? id).join(", ")}.
+              </p>
+            )}
+            {availableSeries.length < MIN_COINS || chartResult.rows.length < 2 ? (
+              <div className="flex h-72 items-center justify-center text-sm text-[var(--color-text-muted)]">
+                Not enough overlapping valid price data to compare these coins.
+              </div>
+            ) : (
+              <CompareNormalizedChart
+                data={chartResult.rows}
+                series={availableSeries.map(({ id, label }) => ({ id, label }))}
+              />
+            )}
+          </>
         )}
       </Card>
     </section>

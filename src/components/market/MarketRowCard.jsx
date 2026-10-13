@@ -1,10 +1,12 @@
+import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Sparkline from "./Sparkline";
+import FlashPrice from "./FlashPrice";
 import Badge, { changeVariant } from "../ui/Badge";
 import { formatCompact, formatPercent, formatPrice } from "../../lib/formatters";
 
-export default function MarketRowCard({ coin, isWatchlisted = false, onToggleWatchlist, onSelect }) {
+function MarketRowCard({ coin, isWatchlisted = false, onToggleWatchlist, onSelect }) {
   const change24h = coin.price_change_percentage_24h;
   const trend = coin.sparkline_in_7d?.price?.map((value) => ({ value }));
 
@@ -41,7 +43,7 @@ export default function MarketRowCard({ coin, isWatchlisted = false, onToggleWat
 
           <span className="text-right">
             <span className="block font-tabular text-sm font-medium text-[var(--color-text-primary)]">
-              {formatPrice(coin.current_price)}
+              <FlashPrice value={coin.current_price}>{formatPrice(coin.current_price)}</FlashPrice>
             </span>
             <Badge variant={changeVariant(change24h)} className="mt-1">{formatPercent(change24h)}</Badge>
           </span>
@@ -60,3 +62,5 @@ export default function MarketRowCard({ coin, isWatchlisted = false, onToggleWat
     </li>
   );
 }
+
+export default memo(MarketRowCard);

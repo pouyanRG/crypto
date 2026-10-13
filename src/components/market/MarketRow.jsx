@@ -1,5 +1,7 @@
+import { memo } from "react";
 import Link from "next/link";
 import Sparkline from "./Sparkline";
+import FlashPrice from "./FlashPrice";
 import Button from "../ui/Button";
 import { TableCell, TableRow } from "../ui/Table";
 
@@ -36,7 +38,7 @@ function Change({ value }) {
   );
 }
 
-export default function MarketRow({ coin, isWatchlisted = false, onToggleWatchlist, onSelect }) {
+function MarketRow({ coin, isWatchlisted = false, onToggleWatchlist, onSelect }) {
   const href = `/coin/${coin.id}`;
 
   return (
@@ -57,7 +59,9 @@ export default function MarketRow({ coin, isWatchlisted = false, onToggleWatchli
           </span>
         </Link>
       </TableCell>
-      <TableCell numeric className="text-[var(--color-text-primary)]">{formatCurrency(coin.current_price)}</TableCell>
+      <TableCell numeric className="text-[var(--color-text-primary)]">
+        <FlashPrice value={coin.current_price}>{formatCurrency(coin.current_price)}</FlashPrice>
+      </TableCell>
       <TableCell numeric><Change value={coin.price_change_percentage_1h_in_currency} /></TableCell>
       <TableCell numeric><Change value={coin.price_change_percentage_24h} /></TableCell>
       <TableCell numeric><Change value={coin.price_change_percentage_7d_in_currency} /></TableCell>
@@ -79,3 +83,5 @@ export default function MarketRow({ coin, isWatchlisted = false, onToggleWatchli
     </TableRow>
   );
 }
+
+export default memo(MarketRow);

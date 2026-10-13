@@ -342,6 +342,17 @@ button:disabled {
   }
 }
 
+@keyframes price-flash-up {
+  from { background-color: var(--color-up-muted); color: var(--color-up); }
+}
+
+@keyframes price-flash-down {
+  from { background-color: var(--color-down-muted); color: var(--color-down); }
+}
+
+.price-flash-up { animation: price-flash-up 700ms var(--ease-standard); }
+.price-flash-down { animation: price-flash-down 700ms var(--ease-standard); }
+
 /* Market hero */
 .market-hero {
   display: grid;

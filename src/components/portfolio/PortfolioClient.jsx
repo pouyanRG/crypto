@@ -199,8 +199,7 @@ export default function PortfolioClient() {
       <Card
         as="form"
         onSubmit={handleSubmit}
-        dir="rtl"
-        className="grid gap-4 text-right sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <div className="sm:col-span-2 lg:col-span-4 flex items-center gap-2 border-b border-[var(--color-border-subtle)] pb-3">
           <span className="flex size-8 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-[var(--color-accent)]" aria-hidden="true">
@@ -208,7 +207,7 @@ export default function PortfolioClient() {
               <path d="M12 5v14M5 12h14" />
             </svg>
           </span>
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">افزودن دارایی جدید</h2>
+          <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">Add new asset</h2>
         </div>
 
         <div className="sm:col-span-2 lg:col-span-4 grid gap-2">
@@ -217,11 +216,11 @@ export default function PortfolioClient() {
           </p>
 
           {marketsLoading ? (
-            <p className="text-sm text-[var(--color-text-muted)]">در حال بارگذاری لیست کوین‌ها...</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Loading coins…</p>
           ) : (
             <div
               role="radiogroup"
-              aria-label="کوین‌های برتر"
+              aria-label="Top coins"
               className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             >
               {coinOptions
@@ -251,8 +250,8 @@ export default function PortfolioClient() {
 
           <Input
             id="portfolio-coin-search"
-            label="جستجوی کوین‌های دیگر"
-            placeholder="مثلاً dogecoin"
+            label="Search other coins"
+            placeholder="e.g. dogecoin"
             value={coinSearchTerm}
             onChange={(event) => setCoinSearchTerm(event.target.value)}
             onClear={() => setCoinSearchTerm("")}
@@ -261,10 +260,10 @@ export default function PortfolioClient() {
           {debouncedCoinSearch.trim().length >= 2 && (
             <ul className="max-h-48 overflow-y-auto rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
               {searchLoading && (
-                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">در حال جستجو...</li>
+                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">Searching…</li>
               )}
               {!searchLoading && searchResults.length === 0 && (
-                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">نتیجه‌ای یافت نشد</li>
+                <li className="px-3 py-2 text-sm text-[var(--color-text-muted)]">No results found</li>
               )}
               {searchResults.map((coin) => (
                 <li key={coin.id}>
@@ -290,7 +289,7 @@ export default function PortfolioClient() {
 
           {coinId && (
             <p className="text-xs text-[var(--color-text-secondary)]">
-              انتخاب‌شده:{" "}
+              Selected:{" "}
               <span className="font-medium text-[var(--color-text-primary)]">{selectedCoinLabel}</span>
             </p>
           )}
@@ -299,26 +298,26 @@ export default function PortfolioClient() {
         <div className="sm:col-span-2 lg:col-span-4 grid gap-3 sm:grid-cols-3">
           <Input
             id="portfolio-amount"
-            label="مقدار"
+            label="Amount"
             type="number"
             inputMode="decimal"
             min="0"
             step="any"
             required
-            placeholder="مثلاً ۰.۵"
+            placeholder="e.g. 0.5"
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
           />
 
           <Input
             id="portfolio-buy-price"
-            label="قیمت خرید (دلار)"
+            label="Buy price (USD)"
             type="number"
             inputMode="decimal"
             min="0"
             step="any"
             required
-            placeholder="مثلاً ۴۲۰۰۰"
+            placeholder="e.g. 42000"
             value={buyPrice}
             onChange={(event) => setBuyPrice(event.target.value)}
           />
@@ -326,14 +325,14 @@ export default function PortfolioClient() {
           <div className="flex flex-col justify-end gap-1.5">
             {estimatedCost != null && (
               <p className="text-xs text-[var(--color-text-secondary)]">
-                سرمایه‌گذاری تخمینی:{" "}
+                Estimated cost:{" "}
                 <span className="font-tabular font-semibold text-[var(--color-text-primary)]">
                   {formatUsd(estimatedCost)}
                 </span>
               </p>
             )}
             <Button type="submit" className="w-full">
-              افزودن دارایی
+              Add asset
             </Button>
           </div>
         </div>
@@ -387,9 +386,9 @@ export default function PortfolioClient() {
 
       {portfolio.length === 0 ? (
         <EmptyState
-          title="هنوز دارایی‌ای اضافه نکردی"
-          description="یک کوین، مقدار و قیمت خرید وارد کن تا سود/زیان لحظه‌ای‌ت محاسبه بشه."
-          actionLabel="مشاهده Markets"
+          title="No assets yet"
+          description="Add a coin, amount and buy price to see live profit and loss."
+          actionLabel="Browse markets"
           onAction={() => router.push("/market")}
         >
           <span className="flex size-12 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-[var(--color-accent)]" aria-hidden="true">

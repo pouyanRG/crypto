@@ -79,13 +79,13 @@ export default function DashboardContent() {
         ) : isError ? (
           <Card>
             <ErrorState
-              title="داده کل ارزش بازار در دسترس نیست"
-              description="بازیابی داده مارکت‌کپ ۷ روزه با خطا مواجه شد."
+              title="Total market cap unavailable"
+              description="Could not load the 7-day market cap data."
               onRetry={refetch}
             />
           </Card>
         ) : (
-          <LineChartWidget title="Market Cap · 7 days " data={marketCapSeries} dataKey="value" xKey="timestamp" />
+          <LineChartWidget title="Market Cap · 7 days" data={marketCapSeries} dataKey="value" xKey="timestamp" />
         )}
       </section>
 
