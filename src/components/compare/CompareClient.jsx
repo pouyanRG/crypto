@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { keepPreviousData, useQueries } from "@tanstack/react-query";
 import clsx from "clsx";
 import { buildCompareChartRows } from "../../lib/compare";
 import { fetcher, getCoinChartUrl, normalizeChartData } from "../../lib/api";
-import { MARKET_COIN_IDS } from "../../lib/coinAssets";
+import { MARKET_COIN_IDS, STABLE_IDS } from "../../lib/coinAssets";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
@@ -28,7 +28,11 @@ function combineChartQueries(results) {
   return {
     seriesData: results.map((result) => result.data),
     loading: results.some((result) => result.isLoading),
+    fetching: results.some((result) => result.isFetching),
+    placeholderData: results.some((result) => result.isPlaceholderData),
     errors: results.map((result) => result.isError),
+    queryLoading: results.map((result) => result.isLoading),
+    queryFetching: results.map((result) => result.isFetching),
     refetch: results.map((result) => result.refetch),
   };
 }
@@ -45,12 +49,9 @@ export default function CompareClient() {
 
   const coinOptions = useMemo(() => {
     const byId = new Map((marketCoins ?? []).map((coin) => [coin.id, coin]));
-    return MARKET_COIN_IDS.map((id) => {
+    return MARKET_COIN_IDS.filter((id) => byId.has(id) && !STABLE_IDS.includes(id)).map((id) => {
       const coin = byId.get(id);
-      return {
-        id,
-        label: coin ? `${coin.name} (${coin.symbol.toUpperCase()})` : id,
-      };
+      return { id, label: `${coin.name} (${coin.symbol.toUpperCase()})` };
     });
   }, [marketCoins]);
 
@@ -68,6 +69,7 @@ export default function CompareClient() {
       queryFn: ({ signal }) => fetcher(getCoinChartUrl(id, days), { signal }),
       enabled: selectedIds.length >= MIN_COINS && Boolean(id),
       select: normalizeChartData,
+      placeholderData: keepPreviousData,
       staleTime: 60_000,
       retry: (failureCount, error) =>
         failureCount < 2 && (error?.status === 429 || error?.status >= 500),
@@ -85,13 +87,33 @@ export default function CompareClient() {
     [selectedIds, labelById, chartQueries.seriesData],
   );
 
-  const chartResult = useMemo(() => buildCompareChartRows(seriesMeta), [seriesMeta]);
-  const skippedIds = chartResult.skippedIds;
-  const availableSeries = seriesMeta.filter(({ id }) => !skippedIds.includes(id));
-
-  const anyChartLoading =
-    selectedIds.length >= MIN_COINS && chartQueries.loading;
-  const hasChartErrors = chartQueries.errors.some(Boolean);
+  const rawChartResult = useMemo(() => buildCompareChartRows(seriesMeta), [seriesMeta]);
+  const unavailableIds = useMemo(
+    () =>
+      selectedIds.filter((id, index) => (
+        chartQueries.errors[index] ||
+        (
+          rawChartResult.skippedIds.includes(id) &&
+          !chartQueries.queryLoading[index] &&
+          !chartQueries.queryFetching[index]
+        )
+      )),
+    [
+      selectedIds,
+      chartQueries.errors,
+      chartQueries.queryLoading,
+      chartQueries.queryFetching,
+      rawChartResult.skippedIds,
+    ],
+  );
+  const availableSeries = useMemo(
+    () => seriesMeta.filter(({ id }) => !unavailableIds.includes(id)),
+    [seriesMeta, unavailableIds],
+  );
+  const chartResult = useMemo(() => buildCompareChartRows(availableSeries), [availableSeries]);
+  const hasChartToRender = availableSeries.length >= MIN_COINS && chartResult.rows.length >= 2;
+  const chartIsUpdating = chartQueries.fetching || chartQueries.placeholderData;
+  const initialChartLoading = selectedIds.length >= MIN_COINS && chartQueries.loading && !hasChartToRender;
 
   const handleSelectionToggle = (id) => {
     if (selectedIds.includes(id)) {
@@ -108,6 +130,9 @@ export default function CompareClient() {
       previous.includes(id) || previous.length >= MAX_COINS ? previous : [...previous, id],
     );
   };
+  const chartEmptyMessage = selectedIds.length < MIN_COINS
+    ? "Select at least two coins to compare."
+    : "There is not enough data to compare this range.";
 
   return (
     <section className="space-y-5">
@@ -185,34 +210,48 @@ export default function CompareClient() {
         </h2>
 
         {selectedIds.length < MIN_COINS ? (
-          <div className="flex h-72 items-center justify-center text-sm text-[var(--color-text-muted)]">
-            Pick at least two coins to draw the chart.
-          </div>
-        ) : hasChartErrors ? (
-          <ErrorState
-            title="Could not load chart data"
-            description="One or more price histories failed to load. Try again in a moment."
-            onRetry={() => chartQueries.refetch.forEach((refetch) => refetch())}
-          />
-        ) : anyChartLoading ? (
+          <CompareNormalizedChart data={[]} series={[]} days={days} emptyMessage={chartEmptyMessage} />
+        ) : initialChartLoading ? (
           <Skeleton className="h-72 w-full" />
         ) : (
           <>
-            {skippedIds.length > 0 && (
-              <p role="status" className="mb-3 text-sm text-[var(--color-text-secondary)]">
-                Price data is unavailable for:{" "}
-                {skippedIds.map((id) => labelById[id] ?? id).join(", ")}.
-              </p>
-            )}
-            {availableSeries.length < MIN_COINS || chartResult.rows.length < 2 ? (
-              <div className="flex h-72 items-center justify-center text-sm text-[var(--color-text-muted)]">
-                Not enough overlapping valid price data to compare these coins.
+            {unavailableIds.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2" role="status" aria-label="Unavailable coin price data">
+                {unavailableIds.map((id) => {
+                  const index = selectedIds.indexOf(id);
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-down)]/30 bg-[var(--color-down-muted)] px-3 py-1 text-xs text-[var(--color-down)]"
+                    >
+                      {labelById[id] ?? id} data unavailable
+                      <button
+                        type="button"
+                        className="font-semibold underline underline-offset-2"
+                        onClick={() => chartQueries.refetch[index]()}
+                      >
+                        Retry
+                      </button>
+                    </span>
+                  );
+                })}
               </div>
-            ) : (
-              <CompareNormalizedChart
-                data={chartResult.rows}
-                series={availableSeries.map(({ id, label }) => ({ id, label }))}
+            )}
+            {availableSeries.length < MIN_COINS ? (
+              <ErrorState
+                title="Not enough valid price histories"
+                description="At least two coins need valid price data to compare this range."
+                onRetry={() => unavailableIds.forEach((id) => chartQueries.refetch[selectedIds.indexOf(id)]())}
               />
+            ) : (
+              <div className={chartIsUpdating ? "opacity-60 transition-opacity" : undefined}>
+                <CompareNormalizedChart
+                  data={chartResult.rows}
+                  series={availableSeries.map(({ id, label }) => ({ id, label }))}
+                  days={days}
+                  emptyMessage={chartEmptyMessage}
+                />
+              </div>
             )}
           </>
         )}

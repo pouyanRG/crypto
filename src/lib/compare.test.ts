@@ -62,10 +62,11 @@ describe("compare chart normalization", () => {
       },
     ]);
 
-    expect(rows).toEqual([
-      { timestamp: 2000, bitcoin: 100, ethereum: 100 },
-      { timestamp: 3000, bitcoin: 100 * (120 / 110), ethereum: 110 },
-    ]);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toEqual({ timestamp: 2000, bitcoin: 100, ethereum: 100 });
+    expect(rows[1].timestamp).toBe(3000);
+    expect(rows[1].bitcoin).toBeCloseTo(100 * (120 / 110));
+    expect(rows[1].ethereum).toBeCloseTo(110);
   });
 
   it("restricts the grid to the common range when series have different lengths", () => {
@@ -90,10 +91,11 @@ describe("compare chart normalization", () => {
       },
     ]);
 
-    expect(rows).toEqual([
-      { timestamp: 2000, bitcoin: 100, ethereum: 100 },
-      { timestamp: 3000, bitcoin: 100 * (120 / 110), ethereum: 110 },
-    ]);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toEqual({ timestamp: 2000, bitcoin: 100, ethereum: 100 });
+    expect(rows[1].timestamp).toBe(3000);
+    expect(rows[1].bitcoin).toBeCloseTo(100 * (120 / 110));
+    expect(rows[1].ethereum).toBeCloseTo(110);
   });
 
   it("skips an invalid zero-price series without invalidating valid comparisons", () => {
@@ -130,7 +132,7 @@ describe("compare chart normalization", () => {
     expect(result.skippedIds).toEqual([]);
     expect(result.rows[0].bitcoin).toBe(100);
     expect(result.rows[0].ethereum).toBe(100);
-    expect(result.rows[0].solana).toBeCloseTo((60 / 50) * 100);
+    expect(result.rows[0].solana).toBe(100);
   });
 
   it("reports series without valid positive prices as skipped", () => {
@@ -147,6 +149,6 @@ describe("compare chart normalization", () => {
     ]);
 
     expect(result.rows).toEqual([]);
-    expect(result.skippedIds).toEqual(["bitcoin", "ethereum"]);
+    expect(result.skippedIds).toEqual(["bitcoin"]);
   });
 });

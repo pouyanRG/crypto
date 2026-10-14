@@ -7,7 +7,6 @@ import zcashLogo from "../../img/Brandmark-Yellow_(1).webp";
 import curveLogo from "../../img/Curve.webp";
 import ethereumClassicLogo from "../../img/ethereum-classic-logo.webp";
 import ethereumLogo from "../../img/ethereum.webp";
-import gramLogo from "../../img/Gram_Circular_Badge.webp";
 import internetComputerLogo from "../../img/Internet_Computer_logo.webp";
 import leoLogo from "../../img/leo-token.webp";
 import litecoinLogo from "../../img/litecoin.webp";
@@ -42,9 +41,10 @@ export const MARKET_COIN_IDS = [
   "ripple-usd",
   "whitebit",
   "zcash",
-  "gram",
   "apxusd",
 ];
+
+export const STABLE_IDS = ["tether", "usd-coin", "dai", "paypal-usd", "ripple-usd", "apxusd"];
 
 export const COIN_LOGOS = {
   apxusd: apxUsdLogo,
@@ -56,7 +56,6 @@ export const COIN_LOGOS = {
   "curve-dao-token": curveLogo,
   "ethereum-classic": ethereumClassicLogo,
   ethereum: ethereumLogo,
-  gram: gramLogo,
   "internet-computer": internetComputerLogo,
   "leo-token": leoLogo,
   litecoin: litecoinLogo,

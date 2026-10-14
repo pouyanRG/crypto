@@ -40,6 +40,73 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Lint compare changes",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"lint",
+				"--",
+				"src/components/compare/CompareClient.jsx",
+				"src/components/compare/CompareNormalizedChart.jsx",
+				"src/lib/coinAssets.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run compare unit tests",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"test",
+				"--",
+				"src/lib/compare.test.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Lint full project",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"lint"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Project typecheck attempt",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"typecheck"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Build dashboard",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Commit and push work",
+			"type": "shell",
+			"command": "git add src/app/api/coingecko/[...path]/route.ts src/app/globals.css src/app/market/page.jsx src/components/compare/CompareClient.jsx src/components/compare/CompareNormalizedChart.jsx src/components/layout/DashboardContent.jsx src/components/market/MarketRow.jsx src/components/market/MarketRowCard.jsx src/components/market/FlashPrice.jsx src/components/market/MarketClient.jsx src/components/portfolio/PortfolioClient.jsx src/lib/compare.test.ts src/lib/compare.ts src/styles/tokens.css src/lib/coinAssets.js && git commit -m \"feat: improve market compare and dashboard UX\" -m \"Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>\" && git push origin HEAD",
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }
