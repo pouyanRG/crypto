@@ -150,7 +150,7 @@ export default function MarketClient() {
 
       <TabsBar active={tab} onChange={(next) => update({ tab: next })} />
 
-      <Card as="div" variant="outlined" className="p-0!">
+      <Card as="div" variant="outlined" className="market-table-card p-0!">
         <MarketTable
           coins={paginatedCoins}
           sort={{ key: sortKey, direction }}

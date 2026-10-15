@@ -112,7 +112,16 @@ button:disabled {
   width: min(1200px, calc(100% - 2rem));
 }
 
-.page-context {
+@media (min-width: 768px) {
+  .market-table-card {
+    position: relative;
+    left: 50%;
+    width: min(120%, calc(100vw - 2rem));
+    transform: translateX(-50%);
+  }
+}
+
+  .page-context {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

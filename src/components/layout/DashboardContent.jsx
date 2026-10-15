@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import { formatCompact, formatPrice } from "../../lib/formatters";
@@ -13,6 +13,11 @@ import Card from "../ui/Card";
 import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
 import MarketHero from "./MarketHero";
+import DataSourceStatus from "./DataSourceStatus";
+import DashboardSearch from "./DashboardSearch";
+
+const INITIAL_COUNT = 3;
+const STEP = 5;
 
 const formatChange = (value) =>
   value == null ? "—" : `${value >= 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
@@ -21,14 +26,19 @@ const Sparkline = dynamic(() => import("../market/Sparkline"), { ssr: false });
 const LineChartWidget = dynamic(() => import("../widgets/LineChartWidget"), { ssr: false });
 
 export default function DashboardContent() {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const panelRef = useRef(null);
   const [chartNow, setChartNow] = useState(0);
-  const { data, isLoading, isError, refetch } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
+  const { data, isLoading, isError, isFetching, dataUpdatedAt, refetch } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setChartNow(Date.now()), 0);
     return () => window.clearTimeout(timeoutId);
   }, []);
   const coins = data ?? [];
+  const pulseStatus = isError ? (data ? "stale" : "unavailable") : isFetching ? "updating" : "live";
+  const updatedLabel = dataUpdatedAt
+    ? `Updated ${new Date(dataUpdatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    : "Not updated yet";
   const watchlistIds = useAppStore((state) => state.watchlistIds);
   const marketCapSeries = useMemo(() => {
     const list = (data ?? []).filter(
@@ -46,7 +56,14 @@ export default function DashboardContent() {
       }, 0),
     }));
   }, [chartNow, data]);
-  const featured = isExpanded ? coins : coins.slice(0, 3);
+  const featured = coins.slice(0, visibleCount);
+  const hasMore = visibleCount < coins.length;
+  const isExpanded = visibleCount > INITIAL_COUNT;
+  const showMore = () => setVisibleCount((count) => Math.min(count + STEP, coins.length));
+  const showLess = () => {
+    setVisibleCount(INITIAL_COUNT);
+    panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const watchlistCoins = watchlistIds
     .map((id) => coins.find((coin) => coin.id === id))
     .filter(Boolean);
@@ -66,6 +83,7 @@ export default function DashboardContent() {
         coins={coins}
         loading={isLoading}
       />
+      <DashboardSearch />
 
       <section aria-label="Total market capitalization chart">
         {isLoading ? (
@@ -90,18 +108,31 @@ export default function DashboardContent() {
       </section>
 
       <section className="market-grid" aria-label="Market trends and movers">
-        <Card className="market-panel">
+        <Card ref={panelRef} className="market-panel scroll-mt-24">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Live trend</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Market pulse</h2>
             </div>
             <div className="flex items-center gap-3">
-              <span className="hidden text-sm text-[var(--color-text-muted)] sm:inline">Updated every minute</span>
-              {coins.length > 3 && (
-                <Button variant="secondary" size="sm" onClick={() => setIsExpanded((expanded) => !expanded)}>
-                  {isExpanded ? "Show Less" : "Show More"}
-                </Button>
+              <span className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] sm:text-sm">
+                <span>{updatedLabel}</span>
+                <span className="hidden sm:inline-flex"><DataSourceStatus status={pulseStatus} /></span>
+                <span className="inline-flex sm:hidden"><DataSourceStatus status={pulseStatus} compact /></span>
+              </span>
+              {coins.length > INITIAL_COUNT && (
+                <div className="flex items-center gap-2">
+                  {isExpanded && (
+                    <Button variant="outline" size="sm" onClick={showLess}>
+                      Show less
+                    </Button>
+                  )}
+                  {hasMore && (
+                    <Button variant="secondary" size="sm" aria-expanded={isExpanded} onClick={showMore}>
+                      Show {Math.min(STEP, coins.length - visibleCount)} more
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -122,7 +153,10 @@ export default function DashboardContent() {
                   return (
                     <li key={coin.id} className="py-3 first:pt-0 last:pb-0">
                       <div className="flex items-center justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-3">
+                        <Link
+                          href={`/coin/${coin.id}`}
+                          className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                        >
                           {COIN_LOGOS[coin.id] ? (
                             <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
                           ) : (
@@ -132,7 +166,7 @@ export default function DashboardContent() {
                             <div className="truncate font-medium text-[var(--color-text-primary)]">{coin.name}</div>
                             <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
                           </div>
-                        </div>
+                        </Link>
                         <div className="shrink-0 text-right">
                           <div className="font-tabular text-sm text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</div>
                           <span className={`price-pill mt-1 ${change24h >= 0 ? "up" : "down"}`}>{formatChange(change24h)}</span>
@@ -169,7 +203,10 @@ export default function DashboardContent() {
                     {featured.map((coin) => (
                       <tr key={coin.id}>
                         <td>
-                          <div className="coin-badge">
+                          <Link
+                            href={`/coin/${coin.id}`}
+                            className="coin-badge rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                          >
                             {COIN_LOGOS[coin.id] ? (
                               <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
                             ) : (
@@ -178,8 +215,8 @@ export default function DashboardContent() {
                             <div>
                               <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
                               <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
-                            </div>
                           </div>
+                          </Link>
                         </td>
                         <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
                         <td>
@@ -270,7 +307,10 @@ export default function DashboardContent() {
                   const change = coin.price_change_percentage_24h;
                   return (
                     <li key={coin.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                      <div className="flex min-w-0 items-center gap-3">
+                      <Link
+                        href={`/coin/${coin.id}`}
+                        className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                      >
                         {COIN_LOGOS[coin.id] ? (
                           <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
                         ) : (
@@ -279,8 +319,8 @@ export default function DashboardContent() {
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium text-[var(--color-text-primary)]">{coin.name}</div>
                           <div className="text-xs uppercase text-[var(--color-text-muted)]">{coin.symbol}</div>
-                        </div>
                       </div>
+                      </Link>
                       <div className="flex shrink-0 items-center gap-3">
                         <Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} />
                         <div className="text-right">

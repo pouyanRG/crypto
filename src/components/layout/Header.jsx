@@ -39,7 +39,7 @@ export default function Header() {
         <LiveBadge />
         <Nav />
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <span className="hidden md:inline-flex">
+          <span className="inline-flex">
             <LiveDataSourceStatus />
           </span>
           <ThemeSwitcher />

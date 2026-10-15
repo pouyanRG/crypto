@@ -14,6 +14,7 @@ import Button from "../ui/Button";
 import Input from "../ui/Input";
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
+import ConfirmDialog from "../ui/ConfirmDialog";
 
 const TOP_COIN_IDS = MARKET_COIN_IDS.slice(0, 20);
 
@@ -40,6 +41,7 @@ export default function PortfolioClient() {
   const [coinSearchTerm, setCoinSearchTerm] = useState("");
   const [debouncedCoinSearch, setDebouncedCoinSearch] = useState("");
   const [selectedCoinLabel, setSelectedCoinLabel] = useState("");
+  const [pendingRemoval, setPendingRemoval] = useState(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedCoinSearch(coinSearchTerm), 250);
@@ -167,12 +169,10 @@ export default function PortfolioClient() {
     return parsedAmount * parsedBuyPrice;
   }, [amount, buyPrice]);
 
-  const handleRemove = (id, name) => {
-    const label = name || id;
-    if (typeof window !== "undefined" && !window.confirm(`Remove ${label} from your portfolio?`)) {
-      return;
-    }
-    removePortfolioAsset(id);
+  const handleRemove = (id, name) => setPendingRemoval({ id, label: name || id });
+  const confirmRemove = () => {
+    if (pendingRemoval) removePortfolioAsset(pendingRemoval.id);
+    setPendingRemoval(null);
   };
 
   return (
@@ -455,6 +455,14 @@ export default function PortfolioClient() {
             </table>
           </Card>
       )}
+      <ConfirmDialog
+        open={pendingRemoval !== null}
+        title="Remove asset?"
+        description={`Remove ${pendingRemoval?.label ?? "this asset"} from your portfolio? This only affects data stored in this browser.`}
+        confirmLabel="Remove"
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingRemoval(null)}
+      />
     </section>
   );
 }
