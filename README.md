@@ -5,7 +5,7 @@ server-side `/api/coingecko` proxy so the API key is never shipped to the browse
 
 Copy `.env.example` to `.env.local` for local development and set
 `COINGECKO_API_KEY` to your CoinGecko Demo key. In Vercel, add the same variable
-under **Project Settings → Environment Variables** for Preview and Production.
+under **Project Settings →  Environment Variables** for Preview and Production.
 
 Do not prefix this variable with `NEXT_PUBLIC_`, commit `.env.local`, or paste the
 key into client-side code.
