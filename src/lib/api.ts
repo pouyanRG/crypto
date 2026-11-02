@@ -1,4 +1,13 @@
-import type { ChartPoint, ChartResponse, CoinDetail, MarketCoin } from "./types";
+import type {
+  ChartPoint,
+  ChartResponse,
+  CoinDetail,
+  DefiChain,
+  DefiProtocol,
+  Exchange,
+  MarketCoin,
+  TrendingCoin,
+} from "./types";
 
 export const API_BASE_URL = "/api/coingecko";
 
@@ -32,15 +41,21 @@ export interface MarketsQuery {
   page?: number;
   perPage?: number;
   ids?: string[];
+  sparkline?: boolean;
 }
 
-export function getMarketsUrl({ page = 1, perPage = 50, ids = [] }: MarketsQuery = {}): string {
+export function getMarketsUrl({
+  page = 1,
+  perPage = 50,
+  ids = [],
+  sparkline = true,
+}: MarketsQuery = {}): string {
   const params = new URLSearchParams({
     vs_currency: "usd",
     order: "market_cap_desc",
     per_page: String(perPage),
     page: String(page),
-    sparkline: "true",
+    sparkline: String(sparkline),
     price_change_percentage: "1h,7d",
   });
   if (ids.length > 0) params.set("ids", ids.join(","));
@@ -62,6 +77,158 @@ export function getCoinSearchUrl(query: string): string {
   return `${API_BASE_URL}/search?${params}`;
 }
 
+export function getExchangesUrl(perPage = 100, page = 1): string {
+  const params = new URLSearchParams({ per_page: String(perPage), page: String(page) });
+  return `${API_BASE_URL}/exchanges?${params}`;
+}
+
+export function getTrendingUrl(): string {
+  return `${API_BASE_URL}/search/trending`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isNullableFiniteNumber(value: unknown): value is number | null | undefined {
+  return value == null || (typeof value === "number" && Number.isFinite(value));
+}
+
+export function parseExchanges(value: unknown): Exchange[] {
+  if (!Array.isArray(value)) {
+    throw new Error("CoinGecko returned an invalid exchange list.");
+  }
+
+  return value.map((entry) => {
+    if (
+      !isRecord(entry) ||
+      typeof entry.id !== "string" ||
+      typeof entry.name !== "string" ||
+      typeof entry.trade_volume_24h_btc !== "number" ||
+      !Number.isFinite(entry.trade_volume_24h_btc) ||
+      (entry.image != null && typeof entry.image !== "string") ||
+      (entry.country != null && typeof entry.country !== "string") ||
+      !isNullableFiniteNumber(entry.trust_score) ||
+      !isNullableFiniteNumber(entry.trust_score_rank)
+    ) {
+      throw new Error("CoinGecko returned malformed exchange data.");
+    }
+
+    return {
+      id: entry.id,
+      name: entry.name,
+      image: entry.image as string | undefined,
+      country: entry.country as string | null | undefined,
+      trust_score: entry.trust_score as number | null | undefined,
+      trust_score_rank: entry.trust_score_rank as number | null | undefined,
+      trade_volume_24h_btc: entry.trade_volume_24h_btc,
+    };
+  });
+}
+
+export function parseTrendingCoins(value: unknown): TrendingCoin[] {
+  if (!isRecord(value) || !Array.isArray(value.coins)) {
+    throw new Error("CoinGecko returned an invalid trending response.");
+  }
+
+  return value.coins.map((entry) => {
+    if (!isRecord(entry) || !isRecord(entry.item)) {
+      throw new Error("CoinGecko returned malformed trending coin data.");
+    }
+
+    const item = entry.item;
+    const data = isRecord(item.data) ? item.data : {};
+    const priceChange = isRecord(data.price_change_percentage_24h)
+      ? data.price_change_percentage_24h.usd
+      : undefined;
+
+    if (
+      typeof item.id !== "string" ||
+      typeof item.name !== "string" ||
+      typeof item.symbol !== "string" ||
+      (item.thumb != null && typeof item.thumb !== "string") ||
+      !isNullableFiniteNumber(item.market_cap_rank) ||
+      !isNullableFiniteNumber(item.score) ||
+      !isNullableFiniteNumber(data.price) ||
+      !isNullableFiniteNumber(priceChange)
+    ) {
+      throw new Error("CoinGecko returned malformed trending coin data.");
+    }
+
+    return {
+      id: item.id,
+      name: item.name,
+      symbol: item.symbol,
+      thumb: item.thumb as string | undefined,
+      market_cap_rank: item.market_cap_rank as number | null | undefined,
+      score: item.score as number | null | undefined,
+      price: data.price as number | null | undefined,
+      price_change_percentage_24h: priceChange as number | null | undefined,
+    };
+  });
+}
+
+export function parseDefiProtocols(value: unknown): DefiProtocol[] {
+  if (!Array.isArray(value)) {
+    throw new Error("DeFiLlama returned an invalid protocol list.");
+  }
+
+  return value.map((entry) => {
+    if (
+      !isRecord(entry) ||
+      (typeof entry.id !== "string" && typeof entry.id !== "number") ||
+      typeof entry.name !== "string" ||
+      !Array.isArray(entry.chains) ||
+      !entry.chains.every((chain) => typeof chain === "string") ||
+      typeof entry.tvl !== "number" ||
+      !Number.isFinite(entry.tvl) ||
+      (entry.symbol != null && typeof entry.symbol !== "string") ||
+      (entry.category != null && typeof entry.category !== "string") ||
+      !isNullableFiniteNumber(entry.change_1d) ||
+      !isNullableFiniteNumber(entry.change_7d)
+    ) {
+      throw new Error("DeFiLlama returned malformed protocol data.");
+    }
+
+    return {
+      id: String(entry.id),
+      name: entry.name,
+      symbol: entry.symbol as string | undefined,
+      category: entry.category as string | undefined,
+      chains: entry.chains as string[],
+      tvl: entry.tvl,
+      change_1d: entry.change_1d as number | null | undefined,
+      change_7d: entry.change_7d as number | null | undefined,
+    };
+  });
+}
+
+export function parseDefiChains(value: unknown): DefiChain[] {
+  if (!Array.isArray(value)) {
+    throw new Error("DeFiLlama returned an invalid chain list.");
+  }
+
+  return value.map((entry) => {
+    if (
+      !isRecord(entry) ||
+      typeof entry.name !== "string" ||
+      typeof entry.tvl !== "number" ||
+      !Number.isFinite(entry.tvl) ||
+      (entry.tokenSymbol != null && typeof entry.tokenSymbol !== "string") ||
+      !isNullableFiniteNumber(entry.chainId)
+    ) {
+      throw new Error("DeFiLlama returned malformed chain data.");
+    }
+
+    return {
+      name: entry.name,
+      tvl: entry.tvl,
+      tokenSymbol: entry.tokenSymbol as string | undefined,
+      chainId: entry.chainId as number | null | undefined,
+    };
+  });
+}
+
 export function normalizeChartData(chart: ChartResponse | undefined): ChartPoint[] {
   return (chart?.prices ?? []).filter(([timestamp, price]) => Number.isFinite(timestamp) && Number.isFinite(price)).map(([timestamp, price]) => ({ timestamp, price }));
 }
@@ -70,4 +237,12 @@ export function normalizeGlobalSeries(series: [number, number][] | undefined): C
   return (series ?? []).filter(([timestamp, value]) => Number.isFinite(timestamp) && Number.isFinite(value)).map(([timestamp, value]) => ({ timestamp, price: value }));
 }
 
-export type { ChartPoint, CoinDetail, MarketCoin } from "./types";
+export type {
+  ChartPoint,
+  CoinDetail,
+  DefiChain,
+  DefiProtocol,
+  Exchange,
+  MarketCoin,
+  TrendingCoin,
+} from "./types";

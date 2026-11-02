@@ -1,6 +1,6 @@
 import Badge from "../ui/Badge";
 
-const LABELS = { live: "Live", updating: "Updating", cached: "Cached", stale: "Stale data", offline: "Offline", unavailable: "API unavailable" };
+const LABELS = { live: "Live", updating: "Updating", cached: "Cached", stale: "Stale data", offline: "Offline", unavailable: "Market data unavailable" };
 const VARIANTS = { live: "up", updating: "neutral", cached: "neutral", stale: "neutral", offline: "down", unavailable: "down" };
 const DOT_COLORS = { up: "bg-[var(--color-up)]", down: "bg-[var(--color-down)]", neutral: "bg-[var(--color-neutral)]" };
 
@@ -10,8 +10,8 @@ export default function DataSourceStatus({ status = "cached", compact = false })
   const variant = VARIANTS[status] ?? VARIANTS.cached;
 
   if (compact) {
-    return <span role="status" aria-label={`Data source status: ${label}`} title={label} className={`inline-block size-2.5 rounded-full ${DOT_COLORS[variant]}`} />;
+    return <span role="status" aria-label={`Market data status: ${label}`} title={label} className={`inline-block size-2.5 rounded-full ${DOT_COLORS[variant]}`} />;
   }
 
-  return <Badge variant={variant} aria-label={`Data source status: ${label}`}>{label}</Badge>;
+  return <Badge variant={variant} aria-label={`Market data status: ${label}`}>{label}</Badge>;
 }

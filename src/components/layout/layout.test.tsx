@@ -25,6 +25,7 @@ describe("shared layout", () => {
 
     expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute("aria-current");
     expect(screen.getByRole("link", { name: "Markets" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("link", { name: "Discover" })).not.toHaveAttribute("aria-current");
   });
 
   it("marks nested routes active without matching similar prefixes", () => {
@@ -37,6 +38,13 @@ describe("shared layout", () => {
     expect(screen.getByRole("link", { name: "Markets" })).not.toHaveAttribute("aria-current");
   });
 
+  it("marks the discovery route active", () => {
+    usePathname.mockReturnValue("/discover");
+    render(<Nav />);
+
+    expect(screen.getByRole("link", { name: "Discover" })).toHaveAttribute("aria-current", "page");
+  });
+
   it("toggles the persisted theme through the shared store", () => {
     render(<ThemeSwitcher />);
     const button = screen.getByRole("button", { name: "Switch to light theme" });
@@ -47,9 +55,12 @@ describe("shared layout", () => {
     expect(screen.getByRole("button", { name: "Switch to dark theme" })).toBeInTheDocument();
   });
 
-  it("renders a truthful and accessible data source status", () => {
+  it("renders a truthful and accessible market data status", () => {
     render(<DataSourceStatus status="unavailable" />);
 
-    expect(screen.getByText("API unavailable")).toHaveAttribute("aria-label", "Data source status: API unavailable");
+    expect(screen.getByText("Market data unavailable")).toHaveAttribute(
+      "aria-label",
+      "Market data status: Market data unavailable",
+    );
   });
 });

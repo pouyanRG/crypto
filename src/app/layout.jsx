@@ -24,7 +24,7 @@ export const metadata = {
     template: "%s | Crypto Analytics Dashboard",
   },
   description:
-    "Track live crypto market data, top movers, and your watchlist — powered by the CoinGecko API.",
+    "Track live crypto market data, top movers, and your watchlist.",
   openGraph: {
     title: "Crypto Analytics Dashboard",
     description: "Track live crypto market data, top movers, and your watchlist.",

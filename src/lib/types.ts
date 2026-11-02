@@ -64,6 +64,45 @@ export interface PortfolioAsset {
   purchasedAt?: string;
 }
 
+export interface Exchange {
+  id: string;
+  name: string;
+  image?: string;
+  country?: string | null;
+  trust_score?: number | null;
+  trust_score_rank?: number | null;
+  trade_volume_24h_btc: number;
+}
+
+export interface TrendingCoin {
+  id: string;
+  name: string;
+  symbol: string;
+  thumb?: string;
+  market_cap_rank?: number | null;
+  score?: number | null;
+  price?: number | null;
+  price_change_percentage_24h?: number | null;
+}
+
+export interface DefiProtocol {
+  id: string;
+  name: string;
+  symbol?: string;
+  category?: string;
+  chains: string[];
+  tvl: number;
+  change_1d?: number | null;
+  change_7d?: number | null;
+}
+
+export interface DefiChain {
+  name: string;
+  tvl: number;
+  tokenSymbol?: string;
+  chainId?: number | null;
+}
+
 export function isMarketCoin(value: unknown): value is MarketCoin {
   if (!value || typeof value !== "object") return false;
   const coin = value as Partial<MarketCoin>;
