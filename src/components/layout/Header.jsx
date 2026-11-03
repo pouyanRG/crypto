@@ -14,7 +14,7 @@ function BrandMark() {
 export default function Header() {
   return (
     <header
-      className="sticky top-0 z-30 px-4 sm:px-6"
+      className="sticky top-0 z-30 hidden px-4 sm:px-6 md:block"
       style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/95 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-2 lg:gap-4">

@@ -1,6 +1,9 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import DataSourceStatus from "./DataSourceStatus";
+import DashboardActionsMenu from "./DashboardActionsMenu";
+import Header from "./Header";
 import Nav from "./Nav";
 import MobileTabBar from "./MobileTabBar";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -54,6 +57,37 @@ describe("shared layout", () => {
     const mobileLinks = screen.getAllByRole("link").filter((link) => link.closest('[aria-label="Mobile navigation"]'));
     expect(mobileLinks).toHaveLength(5);
     expect(mobileLinks.every((link) => link.className.includes("h-14"))).toBe(true);
+  });
+
+  it("hides the header below the desktop breakpoint", () => {
+    const queryClient = new QueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Header />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByRole("banner")).toHaveClass("hidden", "md:block");
+  });
+
+  it("opens dashboard options and switches the theme", () => {
+    render(<DashboardActionsMenu />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dashboard options" }));
+    expect(screen.getByRole("menu", { name: "Dashboard options" })).toBeInTheDocument();
+    expect(screen.getAllByRole("menuitem").map((item) => item.textContent)).toEqual([
+      "Export",
+      "Light theme",
+    ]);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("menu", { name: "Dashboard options" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dashboard options" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Switch to light theme" }));
+
+    expect(useAppStore.getState().theme).toBe("light");
+    expect(screen.queryByRole("menu", { name: "Dashboard options" })).not.toBeInTheDocument();
   });
 
   it("toggles the persisted theme through the shared store", () => {

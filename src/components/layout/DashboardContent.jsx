@@ -14,7 +14,6 @@ import ErrorState from "../ui/ErrorState";
 import Skeleton from "../ui/Skeleton";
 import MarketHero from "./MarketHero";
 import DataSourceStatus from "./DataSourceStatus";
-import DashboardSearch from "./DashboardSearch";
 import { getMarketDataFreshness } from "../../lib/marketFreshness";
 
 const INITIAL_COUNT = 3;
@@ -74,7 +73,7 @@ export default function DashboardContent() {
   const getCoinSparkline = (coin) => (coin.sparkline_in_7d?.price ?? []).map((value) => ({ value }));
 
   return (
-    <div className="dashboard-shell py-6 sm:py-8">
+    <div className="dashboard-shell pt-0 pb-6 sm:pb-8">
       <MarketHero
         marketCap={marketCap}
         marketCapChange={coins.length ? averageMove : null}
@@ -82,7 +81,6 @@ export default function DashboardContent() {
         coins={coins}
         loading={isLoading}
       />
-      <DashboardSearch />
 
       <section aria-label="Total market capitalization chart">
         {isLoading ? (
@@ -108,30 +106,16 @@ export default function DashboardContent() {
 
       <section className="market-grid" aria-label="Market trends and movers">
         <Card ref={panelRef} className="market-panel scroll-mt-24">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="market-panel-header mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="eyebrow">Market trend</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Market pulse</h2>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="market-panel-toolbar flex items-center gap-3">
               <span className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] sm:text-sm">
                 <span className="hidden sm:inline-flex"><DataSourceStatus status={pulseStatus} lastUpdatedAt={marketDataFreshness?.timestamp} timestampSource={marketDataFreshness?.source} /></span>
                 <span className="inline-flex sm:hidden"><DataSourceStatus status={pulseStatus} compact lastUpdatedAt={marketDataFreshness?.timestamp} timestampSource={marketDataFreshness?.source} /></span>
               </span>
-              {coins.length > INITIAL_COUNT && (
-                <div className="flex items-center gap-2">
-                  {isExpanded && (
-                    <Button variant="outline" size="sm" onClick={showLess}>
-                      Show less
-                    </Button>
-                  )}
-                  {hasMore && (
-                    <Button variant="secondary" size="sm" aria-expanded={isExpanded} onClick={showMore}>
-                      Show {Math.min(STEP, coins.length - visibleCount)} more
-                    </Button>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
@@ -145,7 +129,7 @@ export default function DashboardContent() {
             <ErrorState title="Market data unavailable" description="We could not refresh the latest market overview." />
           ) : (
             <>
-              <ul className="divide-y divide-[var(--color-border-subtle)] md:hidden" aria-label="Market overview list">
+              <ul className="market-mobile-list divide-y divide-[var(--color-border-subtle)] md:hidden" aria-label="Market overview list">
                 {featured.map((coin) => {
                   const change24h = coin.price_change_percentage_24h;
                   return (
@@ -183,18 +167,19 @@ export default function DashboardContent() {
                 })}
               </ul>
 
-              <div className="hidden overflow-x-auto md:block">
-                <table className="market-table min-w-[720px]" aria-label="Market overview table">
+              <div className="market-table-viewport hidden md:block">
+                <table className="market-table" aria-label="Market overview table">
+                  <caption className="sr-only">Market prices, price changes, trading volume, market capitalization, and seven-day trends</caption>
                   <thead>
                     <tr>
-                      <th>Asset</th>
-                      <th>Price</th>
-                      <th>1h</th>
-                      <th>24h</th>
-                      <th>7d</th>
-                      <th>Volume</th>
-                      <th>Market Cap</th>
-                      <th>7d Trend</th>
+                      <th scope="col">Asset</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">1h</th>
+                      <th scope="col">24h</th>
+                      <th scope="col">7d</th>
+                      <th scope="col">Volume</th>
+                      <th scope="col">Market Cap</th>
+                      <th scope="col">7d Trend</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -240,13 +225,29 @@ export default function DashboardContent() {
                   </tbody>
                 </table>
               </div>
+              {coins.length > INITIAL_COUNT && (
+                <div className="market-panel-footer">
+                  <div className="market-panel-actions flex items-center gap-2">
+                    {isExpanded && (
+                      <Button variant="outline" size="sm" onClick={showLess}>
+                        Show less
+                      </Button>
+                    )}
+                    {hasMore && (
+                      <Button variant="secondary" size="sm" aria-expanded={isExpanded} onClick={showMore}>
+                        Show {Math.min(STEP, coins.length - visibleCount)} more
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </Card>
 
         <aside className="market-side" aria-label="Side panels">
-          <Card>
-            <div className="mb-5 flex items-center justify-between gap-3">
+          <Card className="market-side-card">
+            <div className="market-side-heading mb-5 flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Top movers</p>
                 <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Momentum</h2>
@@ -283,15 +284,15 @@ export default function DashboardContent() {
             )}
           </Card>
 
-          <Card>
-            <div className="mb-4 flex items-center justify-between gap-3">
+          <Card className="market-side-card">
+            <div className="market-side-heading mb-4 flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Market signal</p>
                 <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Watchlist snapshot</h2>
               </div>
               <Link
                 href="/watchlist"
-                className="inline-flex min-h-8 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-xs font-medium transition-all duration-200 ease-out hover:bg-[var(--color-surface-hover)] active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                className="market-manage-link inline-flex min-h-8 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-xs font-medium transition-all duration-200 ease-out hover:bg-[var(--color-surface-hover)] active:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
               >
                 Manage
               </Link>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import MiniAreaChart from "../widgets/MiniAreaChart";
 import { formatPrice } from "../../lib/formatters";
+import DashboardActionsMenu from "./DashboardActionsMenu";
 
 function SparkleIcon() {
   return (
@@ -20,14 +21,6 @@ function ArrowIcon() {
   );
 }
 
-function ExportIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 15V3m0 0 4 4m-4-4-4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
-    </svg>
-  );
-}
-
 function PulseIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,40 +29,13 @@ function PulseIcon() {
   );
 }
 
-function downloadMarketCsv(coins) {
-  const rows = [
-    ["id", "name", "symbol", "current_price", "change_24h_percent", "market_cap", "total_volume"],
-    ...coins.map((coin) => [
-      coin.id,
-      coin.name,
-      coin.symbol,
-      coin.current_price,
-      coin.price_change_percentage_24h,
-      coin.market_cap,
-      coin.total_volume,
-    ]),
-  ];
-  const csv = rows
-    .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","))
-    .join("\r\n");
-  const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = "crypto-market.csv";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 0);
-}
-
 export default function MarketHero({ marketCap, marketCapChange, marketCapSeries = [], coins = [], loading = false }) {
   const isUp = (marketCapChange ?? 0) >= 0;
 
   return (
-    <section className="market-hero" aria-label="Market overview">
-      <div className="market-hero-eyebrow">
-        <span className="market-hero-rule" aria-hidden="true" />
-        <span>Market overview</span>
+    <section className="market-hero" aria-label="Market snapshot">
+      <div className="flex justify-end">
+        <DashboardActionsMenu coins={coins} loading={loading} />
       </div>
 
       <h1 className="market-hero-title">
@@ -117,10 +83,6 @@ export default function MarketHero({ marketCap, marketCapChange, marketCapSeries
           <span className="market-hero-btn-left"><SparkleIcon />Review opportunities</span>
           <ArrowIcon />
         </Link>
-        <button type="button" className="market-hero-export" onClick={() => downloadMarketCsv(coins)} disabled={loading || coins.length === 0}>
-          <span className="market-hero-btn-left"><ExportIcon />Export</span>
-          <ArrowIcon />
-        </button>
       </div>
     </section>
   );
