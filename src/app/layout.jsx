@@ -40,9 +40,13 @@ export const viewport = {
 
 const themeScript = `
   try {
-    const stored = JSON.parse(localStorage.getItem("crypto-dashboard:app-state") || "null");
-    const theme = stored?.state?.theme;
-    if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+    const raw = localStorage.getItem("crypto-dashboard:app-state");
+    if (!raw) return;
+    const stored = JSON.parse(raw);
+    const theme = stored?.state?.theme ?? stored?.theme;
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.dataset.theme = theme;
+    }
   } catch {}
 `;
 

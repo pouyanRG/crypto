@@ -32,7 +32,7 @@ export default function Button({ variant = "primary", size = "md", loading = fal
         className,
       )}
     >
-      <span aria-hidden="true" className={clsx("size-4", loading ? "animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" : "invisible")} />
+      {loading && <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" />}
       {children}
     </button>
   );

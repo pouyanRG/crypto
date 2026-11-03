@@ -61,10 +61,33 @@ describe("shared UI primitives", () => {
     expect(onChange).toHaveBeenCalledWith("second");
   });
 
+  it("uses accessible touch-sized styling for polished tabs", () => {
+    render(<Tabs id="range-tabs" appearance="polished" active="30" tabs={[{ value: "7", label: "7d" }, { value: "30", label: "30d" }]} />);
+    const activeTab = screen.getByRole("tab", { name: "30d" });
+    expect(activeTab).toHaveClass("min-h-11");
+    expect(activeTab).toHaveClass("flex-1");
+    expect(activeTab).toHaveClass("text-sm");
+    expect(activeTab).toHaveClass("bg-[var(--color-accent)]");
+    expect(activeTab).toHaveClass("text-white");
+    expect(screen.getByRole("tab", { name: "7d" })).toHaveAttribute("aria-selected", "false");
+  });
+
   it("connects a tab to its panel", () => {
     render(<><Tabs id="detail-tabs" panelId="detail-panel" active="summary" tabs={[{ value: "summary", label: "Summary" }]} /><TabPanel id="detail-panel-summary" tabId="detail-tabs-summary" tabValue="summary" active>Content</TabPanel></>);
     expect(screen.getByRole("tab")).toHaveAttribute("aria-controls", "detail-panel-summary");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "detail-tabs-summary");
+  });
+
+  it("keeps every tab connected when ranges share one dynamic panel", () => {
+    render(
+      <>
+        <Tabs id="range-tabs" active="30" tabs={[{ value: "7", label: "7d", panelId: "chart-panel" }, { value: "30", label: "30d", panelId: "chart-panel" }]} />
+        <div id="chart-panel" role="tabpanel" aria-labelledby="range-tabs-30">Chart</div>
+      </>,
+    );
+    for (const tab of screen.getAllByRole("tab")) {
+      expect(document.getElementById(tab.getAttribute("aria-controls") ?? "")).toBeInTheDocument();
+    }
   });
 
   it("connects Input errors to the input with ARIA", () => {
@@ -77,16 +100,28 @@ describe("shared UI primitives", () => {
 
   it("supports a clear action and preserves caller described-by", () => {
     const onClear = vi.fn();
-    render(<Input id="search" aria-describedby="external-help" value="btc" onChange={vi.fn()} onClear={onClear} />);
-    const input = screen.getByRole("textbox");
+    render(<Input id="search" type="search" aria-describedby="external-help" value="btc" onChange={vi.fn()} onClear={onClear} appearance="polished" />);
+    const input = screen.getByRole("searchbox");
     expect(input).toHaveAttribute("aria-describedby", "external-help");
-    fireEvent.click(screen.getByRole("button", { name: "Clear input" }));
+    expect(input).toHaveClass("search-with-clear");
+    const clearButton = screen.getByRole("button", { name: "Clear input" });
+    expect(clearButton).toHaveClass("size-11");
+    fireEvent.click(clearButton);
     expect(onClear).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the clear action only when the input has a value", () => {
+    const { rerender } = render(<Input id="empty-search" value="" onChange={vi.fn()} onClear={vi.fn()} appearance="polished" />);
+    expect(screen.queryByRole("button", { name: "Clear input" })).not.toBeInTheDocument();
+
+    rerender(<Input id="empty-search" value="btc" onChange={vi.fn()} onClear={vi.fn()} appearance="polished" />);
+    expect(screen.getByRole("button", { name: "Clear input" })).toBeInTheDocument();
   });
 
   it("supports selecting an option and disabled Select state", () => {
     render(<Select id="currency" label="Currency" value="usd" onChange={vi.fn()} disabled><option value="usd">USD</option></Select>);
     expect(screen.getByRole("combobox", { name: "Currency" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Currency" })).toHaveClass("min-h-11");
     expect(screen.getByRole("option", { name: "USD" })).toHaveProperty("selected", true);
   });
 

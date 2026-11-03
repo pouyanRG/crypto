@@ -53,6 +53,10 @@ function TabButton({ active, children, onClick, id }) {
   );
 }
 
+function SearchIcon() {
+  return <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><circle cx="8.75" cy="8.75" r="5.75" /><path d="m13 13 4 4" /></svg>;
+}
+
 function ExchangesPanel({ query }) {
   const [search, setSearch] = useState("");
   const { data = [], isLoading, isError, refetch, isFetching } = query;
@@ -86,7 +90,13 @@ function ExchangesPanel({ query }) {
             Ranked by reported 24-hour trading volume. Volume is shown in BTC.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()} loading={isFetching}>
+        <Button
+          variant="outline"
+          size="md"
+          className="min-h-11"
+          onClick={() => refetch()}
+          loading={isFetching}
+        >
           Refresh
         </Button>
       </div>
@@ -98,6 +108,9 @@ function ExchangesPanel({ query }) {
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         onClear={() => setSearch("")}
+        leadingIcon={<SearchIcon />}
+        appearance="polished"
+        className="min-h-11 bg-[var(--color-surface)] placeholder:text-[var(--color-text-secondary)]"
       />
 
       {isLoading ? (
@@ -689,7 +702,7 @@ export default function DiscoverClient() {
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">Discover</h1>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          Explore public market data. No personal holdings or portfolio data are collected.
+          Explore public market data. No personal financial data is collected.
         </p>
       </header>
 

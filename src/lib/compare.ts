@@ -16,6 +16,60 @@ export type CompareChartRowsResult = {
   skippedIds: string[];
 };
 
+export function downsampleCompareChartRows(
+  rows: CompareChartRow[],
+  seriesIds: string[],
+  maxPoints = 220,
+): CompareChartRow[] {
+  if (rows.length <= maxPoints || maxPoints < 3 || seriesIds.length === 0) {
+    return rows;
+  }
+
+  const bucketCount = maxPoints - 2;
+  const bucketWidth = (rows.length - 2) / bucketCount;
+  const sampled = [rows[0]];
+
+  for (let bucket = 0; bucket < bucketCount; bucket += 1) {
+    const start = Math.floor(bucket * bucketWidth) + 1;
+    const end = Math.min(Math.floor((bucket + 1) * bucketWidth) + 1, rows.length - 1);
+    const next = rows[end];
+    let bestIndex = start;
+    let bestDeviation = -1;
+
+    for (let index = start; index < end; index += 1) {
+      const current = rows[index];
+      const progress =
+        (current.timestamp - rows[start - 1].timestamp) /
+        (next.timestamp - rows[start - 1].timestamp || 1);
+      let deviation = 0;
+
+      for (const id of seriesIds) {
+        const startValue = rows[start - 1][id];
+        const endValue = next[id];
+        const currentValue = current[id];
+        if (
+          Number.isFinite(startValue) &&
+          Number.isFinite(endValue) &&
+          Number.isFinite(currentValue)
+        ) {
+          const expected = startValue + (endValue - startValue) * progress;
+          deviation = Math.max(deviation, Math.abs(currentValue - expected));
+        }
+      }
+
+      if (deviation > bestDeviation) {
+        bestDeviation = deviation;
+        bestIndex = index;
+      }
+    }
+
+    sampled.push(rows[bestIndex]);
+  }
+
+  sampled.push(rows[rows.length - 1]);
+  return sampled;
+}
+
 /** Normalize each price to an index where the first point equals 100. */
 export function normalizeSeriesBaseline100(points: ChartPoint[]): number[] {
   if (points.length === 0) return [];

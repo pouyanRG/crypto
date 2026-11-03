@@ -15,6 +15,7 @@ import Skeleton from "../ui/Skeleton";
 import MarketHero from "./MarketHero";
 import DataSourceStatus from "./DataSourceStatus";
 import DashboardSearch from "./DashboardSearch";
+import { getMarketDataFreshness } from "../../lib/marketFreshness";
 
 const INITIAL_COUNT = 3;
 const STEP = 5;
@@ -35,10 +36,8 @@ export default function DashboardContent() {
     return () => window.clearTimeout(timeoutId);
   }, []);
   const coins = data ?? [];
-  const pulseStatus = isError ? (data ? "stale" : "unavailable") : isFetching ? "updating" : "live";
-  const updatedLabel = dataUpdatedAt
-    ? `Updated ${new Date(dataUpdatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-    : "Not updated yet";
+  const marketDataFreshness = getMarketDataFreshness(data, dataUpdatedAt);
+  const pulseStatus = isError ? (data ? "stale" : "unavailable") : isFetching ? "updating" : marketDataFreshness?.source === "provider" ? "live" : "cached";
   const watchlistIds = useAppStore((state) => state.watchlistIds);
   const marketCapSeries = useMemo(() => {
     const list = (data ?? []).filter(
@@ -111,14 +110,13 @@ export default function DashboardContent() {
         <Card ref={panelRef} className="market-panel scroll-mt-24">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="eyebrow">Live trend</p>
+              <p className="eyebrow">Market trend</p>
               <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Market pulse</h2>
             </div>
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] sm:text-sm">
-                <span>{updatedLabel}</span>
-                <span className="hidden sm:inline-flex"><DataSourceStatus status={pulseStatus} /></span>
-                <span className="inline-flex sm:hidden"><DataSourceStatus status={pulseStatus} compact /></span>
+                <span className="hidden sm:inline-flex"><DataSourceStatus status={pulseStatus} lastUpdatedAt={marketDataFreshness?.timestamp} timestampSource={marketDataFreshness?.source} /></span>
+                <span className="inline-flex sm:hidden"><DataSourceStatus status={pulseStatus} compact lastUpdatedAt={marketDataFreshness?.timestamp} timestampSource={marketDataFreshness?.source} /></span>
               </span>
               {coins.length > INITIAL_COUNT && (
                 <div className="flex items-center gap-2">
@@ -288,7 +286,7 @@ export default function DashboardContent() {
           <Card>
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <p className="eyebrow">Portfolio signal</p>
+                <p className="eyebrow">Market signal</p>
                 <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] text-[var(--color-text-primary)]">Watchlist snapshot</h2>
               </div>
               <Link

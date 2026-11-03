@@ -23,7 +23,10 @@
 
   /* ---- Brand / accent (single primary action color) ---- */
   --color-accent: #3b82f6;
+  --color-accent-strong: #1d4ed8;
+  --color-accent-text: #60a5fa;
   --color-accent-muted: rgba(59, 130, 246, 0.12);
+  --color-up-text: #4ade80;
 
   /* ---- Market status ---- */
   --color-up: #22c55e;
@@ -95,7 +98,10 @@
   --color-text-secondary: #52525b;
   --color-text-muted: #71717a;
   --color-accent: #2563eb;
+  --color-accent-strong: #1d4ed8;
+  --color-accent-text: #1d4ed8;
   --color-accent-muted: rgba(37, 99, 235, 0.1);
+  --color-up-text: #15803d;
   --color-up: #16a34a;
   --color-up-muted: rgba(22, 163, 74, 0.08);
   --color-down: #dc2626;

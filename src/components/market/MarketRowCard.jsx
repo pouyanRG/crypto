@@ -28,7 +28,7 @@ function MarketRowCard({ coin, isWatchlisted = false, onToggleWatchlist, onSelec
 
           <span className="min-w-0">
             <span className="block truncate text-sm font-medium text-[var(--color-text-primary)]">{coin.name}</span>
-            <span className="block truncate text-xs text-[var(--color-text-muted)]">
+            <span className="block truncate text-[13px] leading-5 text-[var(--color-text-secondary)]">
               <span className="font-tabular">#{coin.market_cap_rank ?? "–"}</span>
               <span aria-hidden="true"> · </span>
               <span className="uppercase">{coin.symbol}</span>

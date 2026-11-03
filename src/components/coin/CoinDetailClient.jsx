@@ -5,6 +5,7 @@ import Link from "next/link";
 import useCoinDetail from "../../lib/hooks/useCoinDetail";
 import useCoinChart from "../../lib/hooks/useCoinChart";
 import { useAppStore } from "../../lib/store/useAppStore";
+import NavIcon from "../layout/NavIcon";
 import CoinHeader from "./CoinHeader";
 import CoinChart from "./CoinChart";
 import CoinStats from "./CoinStats";
@@ -31,6 +32,64 @@ function formatCoinLabel(id) {
     .filter(Boolean)
     .map((part) => part[0].toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function CoinBreadcrumb({ label }) {
+  return (
+    <nav className="page-context" aria-label="Breadcrumb">
+      <ol className="flex flex-wrap items-center gap-x-1 gap-y-1">
+        <li>
+          <Link
+            href="/"
+            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-2 text-[var(--color-text-secondary)] transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-[var(--color-accent-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+          >
+            <NavIcon name="dashboard" className="size-4" />
+            Dashboard
+          </Link>
+        </li>
+        <li className="flex items-center gap-1">
+          <svg
+            aria-hidden="true"
+            className="size-3.5 text-[var(--color-text-muted)]"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 3 5 5-5 5" />
+          </svg>
+          <Link
+            href="/market"
+            className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-2 text-[var(--color-text-secondary)] transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-[var(--color-accent-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+          >
+            Markets
+          </Link>
+        </li>
+        <li className="flex min-w-0 items-center gap-1">
+          <svg
+            aria-hidden="true"
+            className="size-3.5 shrink-0 text-[var(--color-text-muted)]"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 3 5 5-5 5" />
+          </svg>
+          <span
+            aria-current="page"
+            className="inline-flex min-h-11 max-w-[12rem] items-center truncate px-2 text-[var(--color-text-primary)]"
+          >
+            {label}
+          </span>
+        </li>
+      </ol>
+    </nav>
+  );
 }
 
 export default function CoinDetailClient({ id }) {
@@ -63,14 +122,8 @@ export default function CoinDetailClient({ id }) {
 
   if (isError) {
     return (
-      <section className="space-y-5">
-        <nav className="page-context" aria-label="Breadcrumb">
-          <Link href="/">Dashboard</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/market">Markets</Link>
-          <span aria-hidden="true">/</span>
-          <span aria-current="page">{label || id}</span>
-        </nav>
+      <section className="space-y-6 md:space-y-8">
+        <CoinBreadcrumb label={label || id} />
         <ErrorState
           title="Coin unavailable"
           description={`We could not load details for "${id}". It may be invalid or temporarily unavailable.`}
@@ -81,14 +134,8 @@ export default function CoinDetailClient({ id }) {
   }
 
   return (
-    <section className="space-y-5">
-      <nav className="page-context" aria-label="Breadcrumb">
-        <Link href="/">Dashboard</Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/market">Markets</Link>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{label || id}</span>
-      </nav>
+    <section className="space-y-6 md:space-y-8">
+      <CoinBreadcrumb label={label || id} />
 
       {isLoading || !coin ? (
         <div className="space-y-4" aria-busy="true" aria-label="Loading coin details">

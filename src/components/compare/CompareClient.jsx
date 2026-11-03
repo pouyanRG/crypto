@@ -17,9 +17,9 @@ const MAX_COINS = 3;
 const MIN_COINS = 2;
 
 const RANGE_TABS = [
-  { value: "7", label: "7d" },
-  { value: "30", label: "30d" },
-  { value: "90", label: "90d" },
+  { value: "7", label: "7d", panelId: "compare-chart-panel" },
+  { value: "30", label: "30d", panelId: "compare-chart-panel" },
+  { value: "90", label: "90d", panelId: "compare-chart-panel" },
 ];
 
 const DEFAULT_SELECTED = ["bitcoin", "ethereum"];
@@ -137,13 +137,13 @@ export default function CompareClient() {
   return (
     <section className="space-y-5">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">Compare</h1>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">Compare</h1>
+        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">
           Overlay up to three coins on a normalized index chart (start = 100).
         </p>
       </div>
 
-      <Card className="space-y-4">
+      <Card className="!p-4 sm:!p-6">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="grid gap-1.5">
             <p className="text-sm font-medium text-[var(--color-text-primary)]">
@@ -165,9 +165,9 @@ export default function CompareClient() {
                     <label
                       key={option.id}
                       className={clsx(
-                        "flex min-h-9 min-w-0 max-w-full cursor-pointer items-center rounded-[var(--radius-pill)] border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-[var(--color-accent-muted)]",
+                        "flex min-h-11 min-w-0 max-w-full cursor-pointer items-center rounded-[var(--radius-pill)] border px-3 py-2 text-sm font-medium leading-tight transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] focus-within:ring-2 focus-within:ring-[var(--color-accent)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--color-surface)] active:scale-[0.98]",
                         checked
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-muted)] text-[var(--color-accent-text)]"
                           : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]",
                       )}
                     >
@@ -200,12 +200,22 @@ export default function CompareClient() {
             active={String(days)}
             onChange={(value) => setDays(Number(value))}
             activationMode="automatic"
+            appearance="polished"
+            className="compare-range-tabs mx-auto"
           />
         </div>
       </Card>
 
-      <Card as="section" aria-label="Normalized price comparison">
-        <h2 className="mb-4 text-base font-semibold text-[var(--color-text-primary)]">
+      <Card
+        as="section"
+        id="compare-chart-panel"
+        role="tabpanel"
+        aria-labelledby={`compare-range-${days}`}
+        tabIndex={0}
+        aria-label="Normalized price comparison"
+        className="compare-chart-panel"
+      >
+        <h2 className="mb-3 text-base font-semibold tracking-tight text-[var(--color-text-primary)]">
           Normalized performance
         </h2>
 

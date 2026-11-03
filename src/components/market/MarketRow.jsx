@@ -1,9 +1,11 @@
 import { memo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Sparkline from "./Sparkline";
 import FlashPrice from "./FlashPrice";
 import Button from "../ui/Button";
 import { TableCell, TableRow } from "../ui/Table";
+import { COIN_LOGOS } from "../../lib/coinAssets";
 
 const formatCurrency = (value) =>
   value == null
@@ -40,6 +42,7 @@ function Change({ value }) {
 
 function MarketRow({ coin, isWatchlisted = false, onToggleWatchlist, onSelect }) {
   const href = `/coin/${coin.id}`;
+  const logo = coin.image ?? COIN_LOGOS[coin.id];
 
   return (
     <TableRow>
@@ -50,9 +53,13 @@ function MarketRow({ coin, isWatchlisted = false, onToggleWatchlist, onSelect })
           className="flex items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
         >
           <span className="w-5 shrink-0 text-right font-tabular text-xs text-[var(--color-text-muted)]">{coin.market_cap_rank ?? "-"}</span>
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-xs font-semibold text-[var(--color-accent)]">
-            {coin.symbol?.slice(0, 3).toUpperCase()}
-          </span>
+          {logo ? (
+            <Image src={logo} alt="" width={32} height={32} className="size-8 shrink-0 rounded-full object-contain" />
+          ) : (
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-muted)] text-xs font-semibold text-[var(--color-accent)]">
+              {coin.symbol?.slice(0, 3).toUpperCase()}
+            </span>
+          )}
           <span className="min-w-0">
             <span className="block truncate font-medium text-[var(--color-text-primary)]">{coin.name}</span>
             <span className="block text-xs uppercase text-[var(--color-text-muted)]">{coin.symbol}</span>

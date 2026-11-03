@@ -15,7 +15,7 @@ todos:
     content: "فاز ۳: Header glass بدون shadow، Nav/Footer/MobileTabBar، layout spacing"
     status: in_progress
   - id: phase-4-pages
-    content: "فاز ۴: Dashboard → Market → Coin → Watchlist/Portfolio/Compare"
+    content: "فاز ۴: Dashboard → Market → Coin → Watchlist/Compare"
     status: pending
   - id: phase-5-hero-charts
     content: "فاز ۵: MarketHero + globals hero CSS + Recharts accent-only"
@@ -62,7 +62,7 @@ flowchart TD
 
 **هدف:** لیست ثابت «چه چیزی تغییر می‌کند» قبل از کدنویسی.
 
-- اسکرین‌شات dark/light از: `/`, `/market`, `/coin/[id]`, `/portfolio`.
+- اسکرین‌شات dark/light از: `/`, `/market`, `/coin/[id]`.
 - علامت‌گذاری موارد «toy-like» در کد:
   - گرادیان عنوان: `.market-hero-title-gradient` در [`globals.css`](src/app/globals.css) (~357)
   - CTA گرادیان + `#7c9cff` hardcode (~515)
@@ -126,7 +126,7 @@ flowchart TD
 1. **Dashboard** — [`DashboardContent.jsx`](src/components/layout/DashboardContent.jsx), [`StatCard.jsx`](src/components/widgets/StatCard.jsx), [`TopMoversWidget.jsx`](src/components/widgets/TopMoversWidget.jsx)
 2. **Market** — [`MarketTable.jsx`](src/components/market/MarketTable.jsx), [`MarketRow.jsx`](src/components/market/MarketRow.jsx), [`SearchBar.jsx`](src/components/market/SearchBar.jsx)
 3. **Coin detail** — [`CoinHeader.jsx`](src/components/coin/CoinHeader.jsx), [`CoinChart.jsx`](src/components/coin/CoinChart.jsx)
-4. **Watchlist / Portfolio / Compare** — client components مربوطه
+4. **Watchlist / Compare** — client components مربوطه
 
 **الگوی refactor هر صفحه:**
 

@@ -1,9 +1,13 @@
 import type { StateStorage } from "zustand/middleware";
 
+function isObjectLike(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function isValidPersistedValue(value: string): boolean {
   try {
     const parsed = JSON.parse(value);
-    return parsed !== null && typeof parsed === "object";
+    return isObjectLike(parsed);
   } catch {
     return false;
   }
@@ -24,6 +28,10 @@ export const safeLocalStorage: StateStorage = {
     if (typeof window === "undefined") return;
 
     try {
+      const parsed = JSON.parse(value);
+      if (!isObjectLike(parsed)) {
+        return;
+      }
       window.localStorage.setItem(name, value);
     } catch {
     }

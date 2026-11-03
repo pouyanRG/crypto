@@ -4,10 +4,30 @@ interface RouteContext {
   params: Promise<{ path: string[] }>;
 }
 
+const ALLOWED_COINGECKO_ROOTS = new Set([
+  "coins",
+  "search",
+  "exchanges",
+  "simple",
+  "global",
+  "ping",
+  "status",
+  "asset_platforms",
+]);
+
 export async function GET(request: Request, context: RouteContext) {
   const { path } = await context.params;
 
-  if (path.length === 0 || path.some((segment) => !segment || segment.includes(".."))) {
+  if (path.length === 0 || path.length > 12) {
+    return Response.json({ error: "Invalid market data request." }, { status: 400 });
+  }
+
+  const root = path[0];
+  const hasInvalidSegment = path.some(
+    (segment) => !segment || segment.length > 80 || !/^[a-z0-9][a-z0-9_-]*$/i.test(segment),
+  );
+
+  if (!ALLOWED_COINGECKO_ROOTS.has(root) || hasInvalidSegment) {
     return Response.json({ error: "Invalid market data request." }, { status: 400 });
   }
 

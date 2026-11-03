@@ -4,6 +4,7 @@ export interface MarketCoin {
   id: string;
   symbol: string;
   name: string;
+  last_updated?: string | null;
   image?: string;
   current_price: number | null;
   market_cap: number | null;
@@ -55,13 +56,6 @@ export interface ChartResponse {
 
 export interface WatchlistState {
   ids: string[];
-}
-
-export interface PortfolioAsset {
-  id: string;
-  amount: number;
-  buyPrice: number;
-  purchasedAt?: string;
 }
 
 export interface Exchange {

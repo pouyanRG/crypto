@@ -1,7 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { buildCompareChartRows, normalizeSeriesBaseline100 } from "./compare";
+import {
+  buildCompareChartRows,
+  downsampleCompareChartRows,
+  normalizeSeriesBaseline100,
+} from "./compare";
 
 describe("compare chart normalization", () => {
+  it("reduces dense chart rows while keeping endpoints and sharp moves", () => {
+    const rows = Array.from({ length: 100 }, (_, index) => ({
+      timestamp: index,
+      bitcoin: index === 43 ? 180 : 100 + index / 10,
+      ethereum: 100 + index / 20,
+    }));
+
+    const sampled = downsampleCompareChartRows(rows, ["bitcoin", "ethereum"], 12);
+
+    expect(sampled).toHaveLength(12);
+    expect(sampled[0]).toBe(rows[0]);
+    expect(sampled[sampled.length - 1]).toBe(rows[rows.length - 1]);
+    expect(sampled).toContain(rows[43]);
+  });
+
+  it("leaves short or invalidly capped series unchanged", () => {
+    const rows = [{ timestamp: 1, bitcoin: 100 }, { timestamp: 2, bitcoin: 101 }];
+
+    expect(downsampleCompareChartRows(rows, ["bitcoin"])).toBe(rows);
+    expect(downsampleCompareChartRows(rows, ["bitcoin"], 2)).toBe(rows);
+  });
+
   it("indexes the first price to 100", () => {
     expect(
       normalizeSeriesBaseline100([

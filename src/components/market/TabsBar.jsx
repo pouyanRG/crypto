@@ -3,9 +3,9 @@
 import Tabs from "../ui/Tabs";
 
 const DEFAULT_TABS = [
-  { value: "all", label: "All" },
-  { value: "gainers", label: "Top Gainers" },
-  { value: "losers", label: "Top Losers" },
+  { value: "all", label: "All", panelId: "market-results" },
+  { value: "gainers", label: "Top Gainers", panelId: "market-results" },
+  { value: "losers", label: "Top Losers", panelId: "market-results" },
 ];
 
 export default function TabsBar({ active = "all", onChange, tabs = DEFAULT_TABS }) {
@@ -16,6 +16,7 @@ export default function TabsBar({ active = "all", onChange, tabs = DEFAULT_TABS 
     active={active}
     onChange={onChange}
     activationMode="automatic"
-    className="w-full justify-start border-x-0 border-t-0 border-b rounded-none bg-transparent p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    appearance="polished"
+    className="w-full max-w-full sm:w-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
   />;
 }

@@ -11,37 +11,25 @@ function BrandMark() {
   );
 }
 
-function LiveBadge() {
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-pill)] bg-[var(--color-up-muted)] px-2.5 py-1 text-xs font-semibold text-[var(--color-up)]">
-      <span className="size-1.5 rounded-full bg-[var(--color-up)]" aria-hidden="true" />
-      Live
-    </span>
-  );
-}
-
 export default function Header() {
   return (
     <header
       className="sticky top-0 z-30 px-4 sm:px-6"
       style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/90 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-8">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/95 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-2 lg:gap-4">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2.5 text-sm font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:text-base"
+          className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-[var(--radius-md)] text-sm font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:text-base"
         >
           <BrandMark />
           <span className="whitespace-nowrap tracking-[-0.02em]">
-            Northstar<span className="hidden sm:inline"> Ledger</span>
+            Northstar<span className="hidden lg:inline"> Ledger</span>
           </span>
         </Link>
-        <LiveBadge />
         <Nav />
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <span className="inline-flex">
-            <LiveDataSourceStatus />
-          </span>
+          <LiveDataSourceStatus />
           <ThemeSwitcher />
         </div>
       </div>

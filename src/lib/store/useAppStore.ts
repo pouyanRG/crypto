@@ -1,32 +1,33 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { safeLocalStorage } from "../storage";
-import type { PortfolioAsset, Theme } from "../types";
+import type { Theme } from "../types";
 
-function isPortfolioAsset(value: unknown): value is PortfolioAsset {
-  if (!value || typeof value !== "object") return false;
-  const asset = value as Partial<PortfolioAsset>;
-  return (
-    typeof asset.id === "string" &&
-    asset.id.length > 0 &&
-    typeof asset.amount === "number" &&
-    Number.isFinite(asset.amount) &&
-    typeof asset.buyPrice === "number" &&
-    Number.isFinite(asset.buyPrice) &&
-    (asset.purchasedAt === undefined || typeof asset.purchasedAt === "string")
-  );
+const SAFE_THEME_VALUES: Theme[] = ["dark", "light"];
+const WATCHLIST_ID_PATTERN = /^[a-z0-9][a-z0-9_-]*$/i;
+
+function normalizeWatchlistId(value: string): string {
+  const normalized = value.trim().toLowerCase();
+  return WATCHLIST_ID_PATTERN.test(normalized) ? normalized : "";
+}
+
+function sanitizeWatchlistIds(ids: unknown): string[] {
+  if (!Array.isArray(ids)) return [];
+
+  return [...new Set(
+    ids
+      .filter((id): id is string => typeof id === "string")
+      .map((id) => normalizeWatchlistId(id))
+      .filter((id) => id.length > 0),
+  )];
 }
 
 export interface AppState {
   theme: Theme;
   watchlistIds: string[];
-  portfolio: PortfolioAsset[];
   setTheme: (theme: Theme) => void;
   setWatchlistIds: (ids: string[]) => void;
   toggleWatchlist: (id: string) => void;
-  addPortfolioAsset: (asset: PortfolioAsset) => void;
-  updatePortfolioAsset: (id: string, asset: Omit<PortfolioAsset, "id">) => void;
-  removePortfolioAsset: (id: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -34,66 +35,46 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       theme: "dark",
       watchlistIds: [],
-      portfolio: [],
-      setTheme: (theme) => set({ theme }),
-      setWatchlistIds: (ids) => set({ watchlistIds: [...new Set(ids.filter(Boolean))] }),
-      toggleWatchlist: (id) =>
+      setTheme: (theme) => set({ theme: SAFE_THEME_VALUES.includes(theme) ? theme : "dark" }),
+      setWatchlistIds: (ids) => set({ watchlistIds: sanitizeWatchlistIds(ids) }),
+      toggleWatchlist: (id) => {
+        const normalizedId = normalizeWatchlistId(id);
+        if (!normalizedId) {
+          return;
+        }
+
         set((state) => ({
-          watchlistIds: state.watchlistIds.includes(id)
-            ? state.watchlistIds.filter((item) => item !== id)
-            : [...state.watchlistIds, id],
-        })),
-      addPortfolioAsset: (asset) =>
-        set((state) => {
-          const existing = state.portfolio.find((item) => item.id === asset.id);
-          if (!existing) {
-            return { portfolio: [...state.portfolio, asset] };
-          }
-          const totalAmount = existing.amount + asset.amount;
-          const weightedBuyPrice =
-            (existing.amount * existing.buyPrice + asset.amount * asset.buyPrice) / totalAmount;
-          return {
-            portfolio: state.portfolio.map((item) =>
-              item.id === asset.id
-                ? {
-                    ...item,
-                    amount: totalAmount,
-                    buyPrice: weightedBuyPrice,
-                    purchasedAt: asset.purchasedAt,
-                  }
-                : item,
-            ),
-          };
-        }),
-      updatePortfolioAsset: (id, asset) =>
-        set((state) => ({
-          portfolio: state.portfolio.map((item) => (item.id === id ? { id, ...asset } : item)),
-        })),
-      removePortfolioAsset: (id) =>
-        set((state) => ({ portfolio: state.portfolio.filter((item) => item.id !== id) })),
+          watchlistIds: state.watchlistIds.includes(normalizedId)
+            ? state.watchlistIds.filter((item) => item !== normalizedId)
+            : [...state.watchlistIds, normalizedId],
+        }));
+      },
     }),
     {
       name: "crypto-dashboard:app-state",
+      version: 1,
       storage: createJSONStorage(() => safeLocalStorage),
       partialize: (state) => ({
-        theme: state.theme,
-        watchlistIds: state.watchlistIds,
-        portfolio: state.portfolio,
+        theme: SAFE_THEME_VALUES.includes(state.theme) ? state.theme : "dark",
+        watchlistIds: sanitizeWatchlistIds(state.watchlistIds),
       }),
+      migrate: (persistedState) => {
+        if (!persistedState || typeof persistedState !== "object" || Array.isArray(persistedState)) {
+          return {};
+        }
+        const migrated = { ...(persistedState as Record<string, unknown>) };
+        delete migrated.portfolio;
+        return migrated;
+      },
       merge: (persisted, current) => {
         const stored = persisted as Partial<AppState> | undefined;
-        const watchlistIds = Array.isArray(stored?.watchlistIds)
-          ? [...new Set(stored.watchlistIds.filter((id): id is string => typeof id === "string" && id.length > 0))]
-          : current.watchlistIds;
-        const portfolio = Array.isArray(stored?.portfolio)
-          ? stored.portfolio.filter(isPortfolioAsset)
-          : current.portfolio;
+        const watchlistIds = sanitizeWatchlistIds(stored?.watchlistIds ?? current.watchlistIds);
+        const theme = stored?.theme === "light" || stored?.theme === "dark" ? stored.theme : current.theme;
 
         return {
           ...current,
-          theme: stored?.theme === "light" || stored?.theme === "dark" ? stored.theme : current.theme,
+          theme,
           watchlistIds,
-          portfolio,
         };
       },
       skipHydration: true,
