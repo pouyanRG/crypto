@@ -34,55 +34,61 @@ export default function MarketHero({ marketCap, marketCapChange, marketCapSeries
 
   return (
     <section className="market-hero" aria-label="Market snapshot">
-      <div className="flex justify-end">
+      <div className="market-hero-menu flex justify-end">
         <DashboardActionsMenu coins={coins} loading={loading} />
       </div>
 
-      <h1 className="market-hero-title">
-        <span>Tracked crypto</span>
-        <span className="market-hero-title-gradient">market snapshot</span>
-      </h1>
+      <div className="market-hero-content">
+        <div className="market-hero-copy">
+          <h1 className="market-hero-title">
+            <span>Tracked crypto</span>
+            <span className="market-hero-title-gradient">market snapshot</span>
+          </h1>
 
-      <p className="market-hero-subtitle">
-        Prices, market capitalization and 24-hour movement across the dashboard&apos;s tracked assets.
-      </p>
-
-      <div className="market-hero-pulse">
-        <span className="market-hero-pulse-icon" aria-hidden="true">
-          <span className="market-hero-pulse-dot" />
-          <PulseIcon />
-        </span>
-
-        <div className="market-hero-pulse-label">
-          <p className="market-hero-pulse-title">Live market pulse</p>
-          <p className="market-hero-pulse-sub">Top coins &bull; Real-time</p>
+          <p className="market-hero-subtitle">
+            Prices, market capitalization and 24-hour movement across the dashboard&apos;s tracked assets.
+          </p>
         </div>
 
-        <div className="market-hero-pulse-stat">
-          <p className="market-hero-pulse-stat-label">Total Market Cap</p>
-          <p className="market-hero-pulse-stat-value">{loading ? "—" : formatPrice(marketCap)}</p>
-          {marketCapChange != null && (
-            <p className={`market-hero-pulse-stat-change ${isUp ? "up" : "down"}`}>
-              <span aria-hidden="true">{isUp ? "▲" : "▼"}</span> {isUp ? "+" : ""}
-              {marketCapChange.toFixed(2)}% (24h)
-            </p>
-          )}
+        <div className="market-hero-side">
+          <div className="market-hero-pulse">
+            <span className="market-hero-pulse-icon" aria-hidden="true">
+              <span className="market-hero-pulse-dot" />
+              <PulseIcon />
+            </span>
+
+            <div className="market-hero-pulse-label">
+              <p className="market-hero-pulse-title">Live market pulse</p>
+              <p className="market-hero-pulse-sub">Top coins &bull; Real-time</p>
+            </div>
+
+            <div className="market-hero-pulse-stat">
+              <p className="market-hero-pulse-stat-label">Total Market Cap</p>
+              <p className="market-hero-pulse-stat-value">{loading ? "—" : formatPrice(marketCap)}</p>
+              {marketCapChange != null && (
+                <p className={`market-hero-pulse-stat-change ${isUp ? "up" : "down"}`}>
+                  <span aria-hidden="true">{isUp ? "▲" : "▼"}</span> {isUp ? "+" : ""}
+                  {marketCapChange.toFixed(2)}% (24h)
+                </p>
+              )}
+            </div>
+
+            <div className="market-hero-pulse-chart" aria-hidden="true">
+              <MiniAreaChart id="hero-pulse" data={marketCapSeries} color="var(--color-up)" width={88} height={40} />
+            </div>
+
+            <Link href="/market" aria-label="View market pulse details" className="market-hero-pulse-arrow">
+              <ArrowIcon />
+            </Link>
+          </div>
+
+          <div className="market-hero-actions">
+            <Link href="/market" className="market-hero-cta">
+              <span className="market-hero-btn-left"><SparkleIcon />Review opportunities</span>
+              <ArrowIcon />
+            </Link>
+          </div>
         </div>
-
-        <div className="market-hero-pulse-chart" aria-hidden="true">
-          <MiniAreaChart id="hero-pulse" data={marketCapSeries} color="var(--color-up)" width={88} height={40} />
-        </div>
-
-        <Link href="/market" aria-label="View market pulse details" className="market-hero-pulse-arrow">
-          <ArrowIcon />
-        </Link>
-      </div>
-
-      <div className="market-hero-actions">
-        <Link href="/market" className="market-hero-cta">
-          <span className="market-hero-btn-left"><SparkleIcon />Review opportunities</span>
-          <ArrowIcon />
-        </Link>
       </div>
     </section>
   );

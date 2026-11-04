@@ -17,6 +17,6 @@ export default function TabsBar({ active = "all", onChange, tabs = DEFAULT_TABS 
     onChange={onChange}
     activationMode="automatic"
     appearance="polished"
-    className="w-full max-w-full sm:w-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    className="market-filter-tabs max-w-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
   />;
 }

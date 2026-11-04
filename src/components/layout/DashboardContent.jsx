@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import useCoinsMarket from "../../lib/hooks/useCoinsMarket";
 import { COIN_LOGOS, MARKET_COIN_IDS } from "../../lib/coinAssets";
 import { formatCompact, formatPrice } from "../../lib/formatters";
@@ -17,7 +17,6 @@ import DataSourceStatus from "./DataSourceStatus";
 import { getMarketDataFreshness } from "../../lib/marketFreshness";
 
 const INITIAL_COUNT = 3;
-const STEP = 5;
 
 const formatChange = (value) =>
   value == null ? "—" : `${value >= 0 ? "+" : ""}${Number(value).toFixed(2)}%`;
@@ -28,6 +27,9 @@ const LineChartWidget = dynamic(() => import("../widgets/LineChartWidget"), { ss
 export default function DashboardContent() {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const panelRef = useRef(null);
+  const mobileListRef = useRef(null);
+  const tableViewportRef = useRef(null);
+  const hasMeasuredMarketContent = useRef(false);
   const [chartNow, setChartNow] = useState(0);
   const { data, isLoading, isError, isFetching, dataUpdatedAt, refetch } = useCoinsMarket({ ids: MARKET_COIN_IDS, perPage: MARKET_COIN_IDS.length });
   useEffect(() => {
@@ -54,14 +56,72 @@ export default function DashboardContent() {
       }, 0),
     }));
   }, [chartNow, data]);
-  const featured = coins.slice(0, visibleCount);
-  const hasMore = visibleCount < coins.length;
   const isExpanded = visibleCount > INITIAL_COUNT;
-  const showMore = () => setVisibleCount((count) => Math.min(count + STEP, coins.length));
+  const showMore = () => setVisibleCount(coins.length);
   const showLess = () => {
     setVisibleCount(INITIAL_COUNT);
     panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const toggleMarketList = () => {
+    if (isExpanded) {
+      showLess();
+      return;
+    }
+
+    showMore();
+  };
+  useLayoutEffect(() => {
+    const nodes = [mobileListRef.current, tableViewportRef.current].filter(Boolean);
+    if (!nodes.length) return;
+
+    const measureCollapsedHeight = (node) => {
+      const rows = node.matches(".market-mobile-list")
+        ? node.children
+        : node.querySelectorAll("tbody tr");
+      const lastVisibleRow = rows[INITIAL_COUNT - 1];
+      if (!lastVisibleRow) return node.scrollHeight;
+      const nextRow = rows[INITIAL_COUNT];
+      const visiblePeek = 88;
+      const collapsedBottom = nextRow
+        ? nextRow.getBoundingClientRect().top + visiblePeek
+        : lastVisibleRow.getBoundingClientRect().bottom;
+      return Math.ceil(collapsedBottom - node.getBoundingClientRect().top);
+    };
+
+    nodes.forEach((node) => {
+      const targetHeight = isExpanded ? node.scrollHeight : measureCollapsedHeight(node);
+      if (!hasMeasuredMarketContent.current) {
+        node.style.height = isExpanded ? "auto" : `${targetHeight}px`;
+        return;
+      }
+
+      const currentHeight = node.style.height === "auto" ? node.scrollHeight : node.getBoundingClientRect().height;
+      node.style.height = `${currentHeight}px`;
+      void node.offsetHeight;
+      node.style.height = `${targetHeight}px`;
+
+      if (isExpanded) {
+        const finishExpansion = (event) => {
+          if (event.target === node && event.propertyName === "height") node.style.height = "auto";
+        };
+        node.addEventListener("transitionend", finishExpansion, { once: true });
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          node.style.height = "auto";
+        }
+      }
+    });
+
+    hasMeasuredMarketContent.current = true;
+
+    const syncHeightOnResize = () => {
+      nodes.forEach((node) => {
+        node.style.height = isExpanded ? "auto" : `${measureCollapsedHeight(node)}px`;
+      });
+    };
+    window.addEventListener("resize", syncHeightOnResize);
+    return () => window.removeEventListener("resize", syncHeightOnResize);
+  }, [coins.length, isExpanded]);
   const watchlistCoins = watchlistIds
     .map((id) => coins.find((coin) => coin.id === id))
     .filter(Boolean);
@@ -129,116 +189,134 @@ export default function DashboardContent() {
             <ErrorState title="Market data unavailable" description="We could not refresh the latest market overview." />
           ) : (
             <>
-              <ul className="market-mobile-list divide-y divide-[var(--color-border-subtle)] md:hidden" aria-label="Market overview list">
-                {featured.map((coin) => {
-                  const change24h = coin.price_change_percentage_24h;
-                  return (
-                    <li key={coin.id} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-center justify-between gap-3">
-                        <Link
-                          href={`/coin/${coin.id}`}
-                          className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
-                        >
-                          {COIN_LOGOS[coin.id] ? (
-                            <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
-                          ) : (
-                            <span className="coin-mark shrink-0">{coin.symbol.slice(0, 2).toUpperCase()}</span>
-                          )}
-                          <div className="min-w-0">
-                            <div className="truncate font-medium text-[var(--color-text-primary)]">{coin.name}</div>
-                            <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
-                          </div>
-                        </Link>
-                        <div className="shrink-0 text-right">
-                          <div className="font-tabular text-sm text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</div>
-                          <span className={`price-pill mt-1 ${change24h >= 0 ? "up" : "down"}`}>{formatChange(change24h)}</span>
-                        </div>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between gap-3">
-                        <p className="min-w-0 truncate text-xs text-[var(--color-text-muted)]">
-                          MCap <span className="font-tabular">{formatCompact(coin.market_cap)}</span>
-                          {" · "}
-                          Vol <span className="font-tabular">{formatCompact(coin.total_volume)}</span>
-                        </p>
-                        <Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className="market-table-viewport hidden md:block">
-                <table className="market-table" aria-label="Market overview table">
-                  <caption className="sr-only">Market prices, price changes, trading volume, market capitalization, and seven-day trends</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Asset</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">1h</th>
-                      <th scope="col">24h</th>
-                      <th scope="col">7d</th>
-                      <th scope="col">Volume</th>
-                      <th scope="col">Market Cap</th>
-                      <th scope="col">7d Trend</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {featured.map((coin) => (
-                      <tr key={coin.id}>
-                        <td>
+              <div className={`market-panel-content${isExpanded || coins.length <= INITIAL_COUNT ? " is-expanded" : ""}`}>
+                <ul
+                  id="market-overview-mobile"
+                  ref={mobileListRef}
+                  className="market-mobile-list divide-y divide-[var(--color-border-subtle)] md:hidden"
+                  aria-label="Market overview list"
+                >
+                  {coins.map((coin, index) => {
+                    const change24h = coin.price_change_percentage_24h;
+                    return (
+                      <li key={coin.id} inert={index >= INITIAL_COUNT && !isExpanded} className="py-3 first:pt-0 last:pb-0">
+                        <div className="flex items-center justify-between gap-3">
                           <Link
                             href={`/coin/${coin.id}`}
-                            className="coin-badge rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                            className="flex min-w-0 items-center gap-3 rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                           >
                             {COIN_LOGOS[coin.id] ? (
-                              <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
+                              <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark shrink-0 object-contain" />
                             ) : (
-                              <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                              <span className="coin-mark shrink-0">{coin.symbol.slice(0, 2).toUpperCase()}</span>
                             )}
-                            <div>
-                              <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
+                            <div className="min-w-0">
+                              <div className="truncate font-medium text-[var(--color-text-primary)]">{coin.name}</div>
                               <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
-                          </div>
+                            </div>
                           </Link>
-                        </td>
-                        <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
-                        <td>
-                          <span className={`price-pill ${(coin.price_change_percentage_1h_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
-                            {formatChange(coin.price_change_percentage_1h_in_currency)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
-                            {formatChange(coin.price_change_percentage_24h)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`price-pill ${(coin.price_change_percentage_7d_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
-                            {formatChange(coin.price_change_percentage_7d_in_currency)}
-                          </span>
-                        </td>
-                        <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
-                        <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
-                        <td><Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></td>
+                          <div className="shrink-0 text-right">
+                            <div className="font-tabular text-sm text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</div>
+                            <span className={`price-pill mt-1 ${change24h >= 0 ? "up" : "down"}`}>{formatChange(change24h)}</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                          <p className="min-w-0 truncate text-xs text-[var(--color-text-muted)]">
+                            MCap <span className="font-tabular">{formatCompact(coin.market_cap)}</span>
+                            {" · "}
+                            Vol <span className="font-tabular">{formatCompact(coin.total_volume)}</span>
+                          </p>
+                          <Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div
+                  id="market-overview-table"
+                  ref={tableViewportRef}
+                  className="market-table-viewport hidden md:block"
+                >
+                  <table className="market-table" aria-label="Market overview table">
+                    <caption className="sr-only">Market prices, price changes, trading volume, market capitalization, and seven-day trends</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Asset</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">1h</th>
+                        <th scope="col">24h</th>
+                        <th scope="col">7d</th>
+                        <th scope="col">Volume</th>
+                        <th scope="col">Market Cap</th>
+                        <th scope="col">7d Trend</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {coins.map((coin, index) => (
+                        <tr key={coin.id} inert={index >= INITIAL_COUNT && !isExpanded}>
+                          <td>
+                            <Link
+                              href={`/coin/${coin.id}`}
+                              className="coin-badge rounded-[var(--radius-md)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                            >
+                              {COIN_LOGOS[coin.id] ? (
+                                <Image src={COIN_LOGOS[coin.id]} alt="" width={32} height={32} className="coin-mark object-contain" />
+                              ) : (
+                                <span className="coin-mark">{coin.symbol.slice(0, 2).toUpperCase()}</span>
+                              )}
+                              <div>
+                                <div className="font-medium text-[var(--color-text-primary)]">{coin.name}</div>
+                                <div className="text-xs text-[var(--color-text-muted)]">{coin.symbol.toUpperCase()}</div>
+                              </div>
+                            </Link>
+                          </td>
+                          <td className="font-tabular text-[var(--color-text-primary)]">{formatPrice(coin.current_price)}</td>
+                          <td>
+                            <span className={`price-pill ${(coin.price_change_percentage_1h_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                              {formatChange(coin.price_change_percentage_1h_in_currency)}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`price-pill ${coin.price_change_percentage_24h >= 0 ? "up" : "down"}`}>
+                              {formatChange(coin.price_change_percentage_24h)}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`price-pill ${(coin.price_change_percentage_7d_in_currency ?? 0) >= 0 ? "up" : "down"}`}>
+                              {formatChange(coin.price_change_percentage_7d_in_currency)}
+                            </span>
+                          </td>
+                          <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.total_volume)}</td>
+                          <td className="font-tabular text-[var(--color-text-secondary)]">{formatCompact(coin.market_cap)}</td>
+                          <td><Sparkline data={getCoinSparkline(coin)} positive={(coin.price_change_percentage_7d_in_currency ?? 0) >= 0} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               {coins.length > INITIAL_COUNT && (
-                <div className="market-panel-footer">
-                  <div className="market-panel-actions flex items-center gap-2">
-                    {isExpanded && (
-                      <Button variant="outline" size="sm" onClick={showLess}>
-                        Show less
-                      </Button>
-                    )}
-                    {hasMore && (
-                      <Button variant="secondary" size="sm" aria-expanded={isExpanded} onClick={showMore}>
-                        Show {Math.min(STEP, coins.length - visibleCount)} more
-                      </Button>
-                    )}
-                  </div>
+                <div className={`market-panel-footer${isExpanded ? " is-expanded" : ""}`}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="market-panel-toggle"
+                    type="button"
+                    aria-label={isExpanded ? "Show fewer market assets" : "Show all market assets"}
+                    aria-expanded={isExpanded}
+                    aria-controls="market-overview-mobile market-overview-table"
+                    onClick={toggleMarketList}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className={`market-panel-chevron${isExpanded ? " is-expanded" : ""}`}
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
+                      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Button>
                 </div>
               )}
             </>

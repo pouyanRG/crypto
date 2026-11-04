@@ -81,7 +81,7 @@ export default function MarketTable({
       </ul>
 
       <div className="hidden md:block">
-        <Table caption="Market data" ariaLabel="Cryptocurrency market data" minWidth="900px">
+        <Table caption="Market data" ariaLabel="Cryptocurrency market data" minWidth="1100px" className="market-data-table">
           <TableHead>
             {HEADERS.map(({ label, key }, index) => {
               const isFirst = index === 0;
@@ -104,7 +104,7 @@ export default function MarketTable({
                     <button
                       type="button"
                       onClick={() => onSort?.(key)}
-                      className="inline-flex items-center gap-1 hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
+                      className="market-sort-button inline-flex min-h-11 items-center gap-1 rounded-[var(--radius-sm)] px-2 transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:bg-[var(--color-accent-muted)]"
                     >
                       {label}
                       <span aria-hidden="true">{sort?.key === key ? (sort.direction === "asc" ? "↑" : "↓") : "↕"}</span>

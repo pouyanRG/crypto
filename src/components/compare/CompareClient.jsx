@@ -144,7 +144,7 @@ export default function CompareClient() {
       </div>
 
       <Card className="!p-4 sm:!p-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
           <div className="grid gap-1.5">
             <p className="text-sm font-medium text-[var(--color-text-primary)]">
               Coins (select {MIN_COINS}–{MAX_COINS})
@@ -201,7 +201,7 @@ export default function CompareClient() {
             onChange={(value) => setDays(Number(value))}
             activationMode="automatic"
             appearance="polished"
-            className="compare-range-tabs mx-auto"
+            className="compare-range-tabs lg:w-[232px]"
           />
         </div>
       </Card>

@@ -153,60 +153,65 @@ export default function MarketClient() {
   };
 
   return (
-    <section className="space-y-5">
+    <section className="market-page space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl leading-tight font-semibold tracking-[var(--letter-spacing-heading)] text-[var(--color-text-primary)]">Markets</h1>
-        <SearchBar value={search} onChange={setSearch} />
+        <h1 className="market-page-title text-2xl leading-tight font-semibold tracking-[var(--letter-spacing-heading)] text-[var(--color-text-primary)]">Markets</h1>
       </div>
 
-      <div className="md:hidden">
-        <div ref={sortMenuRef} className="relative">
-          <button
-            type="button"
-            aria-label="Sort coins"
-            aria-haspopup="listbox"
-            aria-expanded={sortMenuOpen}
-            onClick={() => setSortMenuOpen((open) => !open)}
-            className="flex min-h-11 w-full items-center justify-between rounded-[var(--radius-md)] border border-[var(--color-accent)] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%),var(--color-surface)] px-4 py-3 text-left text-base font-medium text-[var(--color-text-primary)] shadow-[0_0_0_1px_rgba(59,130,246,0.12),0_18px_32px_rgba(2,6,23,0.28)] transition-[border-color,background-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-[var(--color-accent)] hover:bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.22),transparent_55%),var(--color-surface-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:scale-[0.99]"
-          >
-            <span className="tracking-[-0.01em]">{currentSortLabel}</span>
-            <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 text-[var(--color-text-secondary)] transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)]" style={{ transform: sortMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m5 7.5 5 5 5-5" /></svg>
-          </button>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <SearchBar value={search} onChange={setSearch} />
 
-          {sortMenuOpen && (
-            <div role="listbox" aria-label="Sort coin list" className="mt-2 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_18px_32px_rgba(2,6,23,0.38),0_8px_16px_rgba(0,0,0,0.18)]">
-              {SORT_OPTIONS.map(([value, label], index) => {
-                const isSelected = value === currentSortValue;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    onClick={() => {
-                      const [key, dir] = value.split(":");
-                      update({ sort: key, dir });
-                      setSortMenuOpen(false);
-                    }}
-                    className={[
-                      "flex w-full items-center justify-between px-4 py-3 text-left text-base font-medium transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
-                      isSelected
-                        ? "bg-[linear-gradient(90deg,rgba(191,219,254,0.82),rgba(219,234,254,0.65))] text-[#0f172a]"
-                        : "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
-                      index !== SORT_OPTIONS.length - 1 && "border-b border-[var(--color-border-subtle)]",
-                    ].join(" ")}
-                  >
-                    <span className="tracking-[-0.01em]">{label}</span>
-                    {isSelected && <span aria-hidden="true" className="inline-flex size-5 items-center justify-center rounded-full bg-[#0f172a]/10 text-[11px] font-bold text-[#0f172a]">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        <div className="md:hidden">
+          <div ref={sortMenuRef} className="relative">
+            <button
+              type="button"
+              aria-label="Sort coins"
+              aria-haspopup="listbox"
+              aria-expanded={sortMenuOpen}
+              onClick={() => setSortMenuOpen((open) => !open)}
+              className="flex min-h-11 w-full items-center justify-between rounded-[var(--radius-md)] border border-[var(--color-accent)] bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.18),transparent_55%),var(--color-surface)] px-4 py-3 text-left text-base font-medium text-[var(--color-text-primary)] shadow-[0_0_0_1px_rgba(59,130,246,0.12),0_18px_32px_rgba(2,6,23,0.28)] transition-[border-color,background-color,box-shadow,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-[var(--color-accent)] hover:bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.22),transparent_55%),var(--color-surface-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:scale-[0.99]"
+            >
+              <span className="tracking-[-0.01em]">{currentSortLabel}</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 text-[var(--color-text-secondary)] transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)]" style={{ transform: sortMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m5 7.5 5 5 5-5" /></svg>
+            </button>
+
+            {sortMenuOpen && (
+              <div role="listbox" aria-label="Sort coin list" className="mt-2 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_18px_32px_rgba(2,6,23,0.38),0_8px_16px_rgba(0,0,0,0.18)]">
+                {SORT_OPTIONS.map(([value, label], index) => {
+                  const isSelected = value === currentSortValue;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      onClick={() => {
+                        const [key, dir] = value.split(":");
+                        update({ sort: key, dir });
+                        setSortMenuOpen(false);
+                      }}
+                      className={[
+                        "flex w-full items-center justify-between px-4 py-3 text-left text-base font-medium transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
+                        isSelected
+                          ? "bg-[linear-gradient(90deg,rgba(191,219,254,0.82),rgba(219,234,254,0.65))] text-[#0f172a]"
+                          : "bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
+                        index !== SORT_OPTIONS.length - 1 && "border-b border-[var(--color-border-subtle)]",
+                      ].join(" ")}
+                    >
+                      <span className="tracking-[-0.01em]">{label}</span>
+                      {isSelected && <span aria-hidden="true" className="inline-flex size-5 items-center justify-center rounded-full bg-[#0f172a]/10 text-[11px] font-bold text-[#0f172a]">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="md:order-first md:flex-none">
+          <TabsBar active={tab} onChange={(next) => update({ tab: next })} />
         </div>
       </div>
-
-      <TabsBar active={tab} onChange={(next) => update({ tab: next })} />
 
       <div id="market-results" role="tabpanel" aria-labelledby={`market-tabs-${tab}`} tabIndex={0} className="space-y-5">
         <Card as="div" variant="outlined" className="market-table-card p-0!">

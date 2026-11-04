@@ -14,10 +14,10 @@ function BrandMark() {
 export default function Header() {
   return (
     <header
-      className="sticky top-0 z-30 hidden px-4 sm:px-6 md:block"
-      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
+      className="sticky top-0 z-30 hidden px-3 md:block"
+      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.5rem)" }}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/95 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-2 lg:gap-4">
+      <div className="mx-auto flex h-14 w-full max-w-none items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)]/95 px-4 shadow-[var(--shadow-card)] backdrop-blur-xl sm:px-6 md:h-16 md:gap-2 lg:gap-4">
         <Link
           href="/"
           className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-[var(--radius-md)] text-sm font-semibold tracking-[-0.02em] text-[var(--color-text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:text-base"
