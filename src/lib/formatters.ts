@@ -50,3 +50,16 @@ export function formatUpdatedAt(value: number | string | Date | null | undefined
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
 }
+
+export function formatRelativeAge(timestamp: number | null | undefined, now = Date.now()): string {
+  if (timestamp === null || timestamp === undefined || !Number.isFinite(timestamp) || timestamp <= 0) {
+    return "—";
+  }
+
+  const diff = Math.max(0, now - timestamp);
+
+  if (diff < 10_000) return "just now";
+  if (diff < 60_000) return `${Math.floor(diff / 1000)}s ago`;
+  if (diff < 60 * 60_000) return `${Math.floor(diff / 60_000)}m ago`;
+  return `${Math.floor(diff / 3_600_000)}h ago`;
+}

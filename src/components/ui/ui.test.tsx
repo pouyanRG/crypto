@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import Badge from "./Badge";
 import Button from "./Button";
 import Card from "./Card";
 import EmptyState from "./EmptyState";
@@ -72,6 +73,19 @@ describe("shared UI primitives", () => {
     expect(screen.getByRole("tab", { name: "7d" })).toHaveAttribute("aria-selected", "false");
   });
 
+  it("supports the bar tab appearance for compact view controls", () => {
+    render(<Tabs id="exchange-tabs" appearance="bar" ariaLabel="Exchange view" active="table" tabs={[{ value: "table", label: "Table" }, { value: "cards", label: "Cards" }]} />);
+    expect(screen.getByRole("tablist", { name: "Exchange view" })).toHaveClass("overflow-x-auto");
+    expect(screen.getByRole("tab", { name: "Table" })).toHaveClass("bg-[var(--color-surface-hover)]");
+    expect(screen.getByRole("tab", { name: "Cards" })).toHaveAttribute("aria-selected", "false");
+  });
+
+  it("uses the warning token variant for low trust badges", () => {
+    render(<Badge variant="warning">Low trust</Badge>);
+    expect(screen.getByText("Low trust")).toHaveClass("bg-[var(--color-warning-muted)]");
+    expect(screen.getByText("Low trust")).toHaveClass("text-[var(--color-warning)]");
+  });
+
   it("connects a tab to its panel", () => {
     render(<><Tabs id="detail-tabs" panelId="detail-panel" active="summary" tabs={[{ value: "summary", label: "Summary" }]} /><TabPanel id="detail-panel-summary" tabId="detail-tabs-summary" tabValue="summary" active>Content</TabPanel></>);
     expect(screen.getByRole("tab")).toHaveAttribute("aria-controls", "detail-panel-summary");
@@ -123,6 +137,12 @@ describe("shared UI primitives", () => {
     expect(screen.getByRole("combobox", { name: "Currency" })).toBeDisabled();
     expect(screen.getByRole("combobox", { name: "Currency" })).toHaveClass("min-h-11");
     expect(screen.getByRole("option", { name: "USD" })).toHaveProperty("selected", true);
+  });
+
+  it("supports an accessible leading icon on Select", () => {
+    render(<Select id="exchange-country" label="Country" leadingIcon={<span data-testid="country-icon">Globe</span>}><option value="">All countries</option></Select>);
+    expect(screen.getByRole("combobox", { name: "Country" })).toHaveClass("ps-10");
+    expect(screen.getByTestId("country-icon").parentElement).toHaveAttribute("aria-hidden", "true");
   });
 
   it("makes clickable table rows keyboard accessible", () => {

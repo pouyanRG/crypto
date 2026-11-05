@@ -8,6 +8,9 @@
 :root {
   color-scheme: dark;
 
+  --color-warning: #eab308;
+  --color-warning-muted: rgba(234, 179, 8, 0.14);
+
   /* ---- Surfaces (Zinc scale, dark) ---- */
   --color-bg: #09090b;
   --color-bg-elevated: #0f0f12;
@@ -88,6 +91,8 @@
 
 [data-theme="light"] {
   color-scheme: light;
+  --color-warning: #a16207;
+  --color-warning-muted: rgba(202, 138, 4, 0.12);
   --color-bg: #fafafa;
   --color-bg-elevated: #ffffff;
   --color-surface: #ffffff;

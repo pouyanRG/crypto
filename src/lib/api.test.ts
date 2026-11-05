@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   getExchangesUrl,
+  getExchangeDetailUrl,
+  getExchangeVolumeChartUrl,
   getMarketsUrl,
   getTrendingUrl,
   normalizeChartData,
   parseDefiChains,
   parseDefiProtocols,
+  parseExchangeDetail,
+  parseExchangeVolumeChart,
   parseExchanges,
   parseTrendingCoins,
 } from "./api";
@@ -42,6 +46,13 @@ describe("CoinGecko API contracts", () => {
     expect(new URL(getTrendingUrl(), "http://localhost").pathname).toBe(
       "/api/coingecko/search/trending",
     );
+    expect(new URL(getExchangeDetailUrl("binance"), "http://localhost").pathname).toBe(
+      "/api/coingecko/exchanges/binance",
+    );
+    expect(new URL(getExchangeVolumeChartUrl("binance", 1), "http://localhost").pathname).toBe(
+      "/api/coingecko/exchanges/binance/volume_chart",
+    );
+    expect(new URL(getExchangeVolumeChartUrl("binance", 1), "http://localhost").searchParams.get("days")).toBe("1");
   });
 
   it("parses exchange rankings and trending coins", () => {
@@ -87,6 +98,38 @@ describe("CoinGecko API contracts", () => {
     expect(() => parseExchanges({})).toThrow("invalid exchange list");
     expect(() => parseTrendingCoins({ coins: [{ item: { id: "bitcoin" } }] })).toThrow(
       "malformed trending coin data",
+    );
+  });
+
+  it("parses exchange detail and volume charts", () => {
+    expect(parseExchangeVolumeChart([
+      [1700000000000, "12.5"],
+      [1700000100000, 16],
+      [1700000200000, Number.POSITIVE_INFINITY],
+    ])).toEqual([
+      { timestamp: 1700000000000, value: 12.5 },
+      { timestamp: 1700000100000, value: 16 },
+    ]);
+
+    expect(parseExchangeDetail({
+      id: "ignored",
+      name: "Binance",
+      country: "Cayman Islands",
+      trade_volume_24h_btc: 1000,
+      trust_score: 9.4,
+      trust_score_rank: 1,
+    }, "binance")).toEqual({
+      id: "binance",
+      name: "Binance",
+      country: "Cayman Islands",
+      trade_volume_24h_btc: 1000,
+      trust_score: 9.4,
+      trust_score_rank: 1,
+    });
+
+    expect(() => parseExchangeVolumeChart({ bad: true })).toThrow("invalid volume chart");
+    expect(() => parseExchangeDetail({ name: 12, trade_volume_24h_btc: NaN }, "binance")).toThrow(
+      "malformed exchange data",
     );
   });
 

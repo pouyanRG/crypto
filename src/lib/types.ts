@@ -68,6 +68,24 @@ export interface Exchange {
   trade_volume_24h_btc: number;
 }
 
+export interface VolumePoint {
+  timestamp: number;
+  value: number;
+}
+
+export interface ExchangeDetail {
+  id: string;
+  name: string;
+  image?: string;
+  country?: string | null;
+  year_established?: number | null;
+  description?: string | null;
+  url?: string | null;
+  trust_score?: number | null;
+  trust_score_rank?: number | null;
+  trade_volume_24h_btc: number;
+}
+
 export interface TrendingCoin {
   id: string;
   name: string;

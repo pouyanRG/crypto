@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatCompact, formatPercent, formatPrice, formatUpdatedAt } from "./formatters";
+import { formatCompact, formatPercent, formatPrice, formatRelativeAge, formatUpdatedAt } from "./formatters";
 
 describe("shared formatters", () => {
   it("preserves meaningful precision for small prices", () => {
@@ -17,5 +17,13 @@ describe("shared formatters", () => {
   it("handles invalid update timestamps explicitly", () => {
     expect(formatUpdatedAt("not-a-date")).toBe("—");
     expect(formatUpdatedAt(0)).not.toBe("—");
+  });
+
+  it("formats relative age for recent timestamps", () => {
+    expect(formatRelativeAge(1700000000000, 1700000005000)).toBe("just now");
+    expect(formatRelativeAge(1700000000000, 1700000000000 + 12_500)).toBe("12s ago");
+    expect(formatRelativeAge(1700000000000, 1700000000000 + 90_000)).toBe("1m ago");
+    expect(formatRelativeAge(1700000000000, 1700000000000 + 2 * 60 * 60 * 1000)).toBe("2h ago");
+    expect(formatRelativeAge(null, 1700000005000)).toBe("—");
   });
 });

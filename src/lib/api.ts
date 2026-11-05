@@ -5,8 +5,10 @@ import type {
   DefiChain,
   DefiProtocol,
   Exchange,
+  ExchangeDetail,
   MarketCoin,
   TrendingCoin,
+  VolumePoint,
 } from "./types";
 
 export const API_BASE_URL = "/api/coingecko";
@@ -82,8 +84,49 @@ export function getExchangesUrl(perPage = 100, page = 1): string {
   return `${API_BASE_URL}/exchanges?${params}`;
 }
 
+export function getExchangeDetailUrl(id: string): string {
+  return `${API_BASE_URL}/exchanges/${encodeURIComponent(id)}`;
+}
+
+export function getExchangeVolumeChartUrl(id: string, days = 1): string {
+  return `${API_BASE_URL}/exchanges/${encodeURIComponent(id)}/volume_chart?days=${days}`;
+}
+
 export function getTrendingUrl(): string {
   return `${API_BASE_URL}/search/trending`;
+}
+
+export function parseExchangeVolumeChart(value: unknown): VolumePoint[] {
+  if (!Array.isArray(value)) {
+    throw new Error("CoinGecko returned an invalid volume chart.");
+  }
+
+  return value.flatMap((entry) => {
+    if (!Array.isArray(entry) || entry.length < 2) return [];
+    const timestampValue = Number(entry[0]);
+    const numericValue = Number(entry[1]);
+    if (!Number.isFinite(timestampValue) || !Number.isFinite(numericValue)) return [];
+    return [{ timestamp: timestampValue, value: numericValue }];
+  });
+}
+
+export function parseExchangeDetail(value: unknown, id: string): ExchangeDetail {
+  if (!isRecord(value) || typeof value.name !== "string" || !Number.isFinite(Number(value.trade_volume_24h_btc))) {
+    throw new Error("CoinGecko returned malformed exchange data.");
+  }
+
+  return {
+    id,
+    name: value.name,
+    ...(typeof value.image === "string" ? { image: value.image } : {}),
+    ...(value.country !== undefined ? { country: typeof value.country === "string" ? value.country : null } : {}),
+    ...(value.year_established !== undefined ? { year_established: typeof value.year_established === "number" && Number.isFinite(value.year_established) ? value.year_established : null } : {}),
+    ...(value.description !== undefined ? { description: typeof value.description === "string" ? value.description : value.description == null ? null : String(value.description) } : {}),
+    ...(value.url !== undefined ? { url: typeof value.url === "string" ? value.url : value.url == null ? null : String(value.url) } : {}),
+    trust_score: typeof value.trust_score === "number" && Number.isFinite(value.trust_score) ? value.trust_score : value.trust_score == null ? null : Number(value.trust_score),
+    trust_score_rank: typeof value.trust_score_rank === "number" && Number.isFinite(value.trust_score_rank) ? value.trust_score_rank : value.trust_score_rank == null ? null : Number(value.trust_score_rank),
+    trade_volume_24h_btc: Number(value.trade_volume_24h_btc),
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -243,6 +286,8 @@ export type {
   DefiChain,
   DefiProtocol,
   Exchange,
+  ExchangeDetail,
   MarketCoin,
   TrendingCoin,
+  VolumePoint,
 } from "./types";

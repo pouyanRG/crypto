@@ -1,12 +1,13 @@
 import clsx from "clsx";
 
-/** @param {{ id: string, label?: string, placeholder?: string, helperText?: string, error?: string, required?: boolean, children?: import("react").ReactNode, className?: string, [key: string]: any }} props */
-export default function Select({ id, label, placeholder = undefined, helperText = undefined, error = undefined, required = false, children = null, className = undefined, ...props }) {
+/** @param {{ id: string, label?: string, placeholder?: string, helperText?: string, error?: string, required?: boolean, children?: import("react").ReactNode, className?: string, leadingIcon?: import("react").ReactNode, [key: string]: any }} props */
+export default function Select({ id, label, placeholder = undefined, helperText = undefined, error = undefined, required = false, children = null, className = undefined, leadingIcon = null, ...props }) {
   const messageId = `${id}-message`;
   return <div className="grid gap-1.5">
     {label && <label htmlFor={id} className="text-sm font-medium text-[var(--color-text-primary)]">{label}{required && <span aria-hidden="true"> *</span>}</label>}
     <div className="relative">
-      <select {...props} id={id} required={required} aria-invalid={Boolean(error)} aria-describedby={props["aria-describedby"] || (helperText || error ? messageId : undefined)} className={clsx("min-h-11 w-full appearance-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 pe-10 text-sm text-[var(--color-text-primary)] outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:border-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent-muted)] disabled:cursor-not-allowed disabled:opacity-50", error && "border-[var(--color-down)]", className)}>
+      {leadingIcon && <span className="pointer-events-none absolute inset-y-0 start-3 inline-flex items-center text-[var(--color-text-muted)]" aria-hidden="true">{leadingIcon}</span>}
+      <select {...props} id={id} required={required} aria-invalid={Boolean(error)} aria-describedby={props["aria-describedby"] || (helperText || error ? messageId : undefined)} className={clsx("min-h-11 w-full appearance-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 pe-10 text-sm text-[var(--color-text-primary)] outline-none transition-[border-color,background-color,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] focus-visible:border-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent-muted)] disabled:cursor-not-allowed disabled:opacity-50", leadingIcon && "ps-10", error && "border-[var(--color-down)]", className)}>
         {placeholder && <option value="">{placeholder}</option>}
         {children}
       </select>
