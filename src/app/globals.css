@@ -139,14 +139,18 @@ button:disabled {
   outline-offset: 2px;
 }
 
-.recharts-wrapper .recharts-surface:focus {
-  outline: none;
-}
-
-.recharts-wrapper .recharts-surface:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
-  border-radius: var(--radius-md);
+/* Disable focus ring and tap highlight on every Recharts chart */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
+.recharts-responsive-container,
+.recharts-responsive-container:focus,
+.recharts-responsive-container:focus-visible {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .compare-chart .recharts-default-legend {
@@ -202,7 +206,7 @@ button:disabled {
   padding-inline: 0;
 }
 
-  .page-context {
+.page-context {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

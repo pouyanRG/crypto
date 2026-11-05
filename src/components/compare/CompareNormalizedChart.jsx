@@ -120,6 +120,7 @@ export default function CompareNormalizedChart({
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
+            accessibilityLayer={false}
             margin={{ top: 16, right: 16, left: 4, bottom: 8 }}
             onClick={handleChartMove}
             onMouseMove={handleChartMove}

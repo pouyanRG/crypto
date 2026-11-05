@@ -8,3 +8,6 @@
 *.pem
 npm-debug.log*
 *.tsbuildinfo
+
+.vercel
+.env*
