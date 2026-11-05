@@ -42,10 +42,10 @@ function TabButton({ active, children, onClick, id }) {
       aria-controls="discover-panel"
       onClick={onClick}
       className={clsx(
-        "rounded-[var(--radius-md)] px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
+        "min-h-11 rounded-[var(--radius-md)] border px-4 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-200 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
         active
-          ? "bg-[var(--color-accent-muted)] text-[var(--color-accent)]"
-          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)]",
+          ? "border-[var(--color-accent)]/35 bg-[var(--color-accent-muted)] text-[var(--color-accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          : "border-transparent bg-transparent text-[var(--color-text-secondary)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
       )}
     >
       {children}
@@ -82,11 +82,11 @@ function ExchangesPanel({ query }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-text-primary)]">
             Exchange rankings
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
             Ranked by reported 24-hour trading volume. Volume is shown in BTC.
           </p>
         </div>
@@ -179,11 +179,11 @@ function TrendingPanel({ query }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-text-primary)]">
             Trending coins
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
             Coins most searched in the last 24 hours.
           </p>
         </div>
@@ -316,11 +316,11 @@ function DefiPanel() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-text-primary)]">
             DeFi total value locked
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
             Compare protocol and chain TVL. Chain-level values are shown separately and are not summed.
           </p>
         </div>
@@ -346,14 +346,14 @@ function DefiPanel() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Card as="div" variant="compact">
-          <p className="text-xs text-[var(--color-text-muted)]">Protocols tracked</p>
+        <Card as="div" variant="compact" className="bg-[var(--color-bg-elevated)]">
+          <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-text-muted)]">Protocols tracked</p>
           <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
             {protocolsQuery.isError ? "—" : formatCompact(protocols.length)}
           </p>
         </Card>
-        <Card as="div" variant="compact">
-          <p className="text-xs text-[var(--color-text-muted)]">Chains tracked</p>
+        <Card as="div" variant="compact" className="bg-[var(--color-bg-elevated)]">
+          <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-text-muted)]">Chains tracked</p>
           <p className="mt-2 font-tabular text-lg font-semibold text-[var(--color-text-primary)]">
             {chainsQuery.isError ? "—" : formatCompact(chains.length)}
           </p>
@@ -512,9 +512,9 @@ function ScreenerPanel() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Coin screener</h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[var(--color-text-primary)]">Coin screener</h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
             Filter and sort the top 250 coins by market cap. Filters run in your browser.
           </p>
         </div>
@@ -700,8 +700,10 @@ export default function DiscoverClient() {
   return (
     <section className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">Discover</h1>
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <h1 className="text-2xl font-semibold tracking-[-0.03em] text-[var(--color-text-primary)] sm:text-[2rem]">
+          Discover
+        </h1>
+        <p className="text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">
           Explore public market data. No personal financial data is collected.
         </p>
       </header>
