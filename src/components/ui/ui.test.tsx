@@ -133,10 +133,32 @@ describe("shared UI primitives", () => {
   });
 
   it("supports selecting an option and disabled Select state", () => {
-    render(<Select id="currency" label="Currency" value="usd" onChange={vi.fn()} disabled><option value="usd">USD</option></Select>);
-    expect(screen.getByRole("combobox", { name: "Currency" })).toBeDisabled();
+    const onChange = vi.fn();
+    render(<Select id="currency" label="Currency" value="usd" onChange={onChange}><option value="usd">USD</option><option value="eur">EUR</option></Select>);
     expect(screen.getByRole("combobox", { name: "Currency" })).toHaveClass("min-h-11");
-    expect(screen.getByRole("option", { name: "USD" })).toHaveProperty("selected", true);
+    fireEvent.click(screen.getByRole("combobox", { name: "Currency" }));
+    const selectedOption = screen.getByRole("option", { name: "USD" });
+    expect(selectedOption).toHaveAttribute("aria-selected", "true");
+    expect(selectedOption).toHaveClass("bg-[linear-gradient(90deg,rgba(191,219,254,0.82),rgba(219,234,254,0.65))]");
+    fireEvent.click(screen.getByRole("option", { name: "EUR" }));
+    expect(onChange).toHaveBeenCalledWith({ target: { value: "eur" } });
+  });
+
+  it("supports disabled and keyboard operation for custom Select menus", () => {
+    render(<Select id="currency" label="Currency" defaultValue="usd"><option value="usd">USD</option><option value="eur">EUR</option></Select>);
+    const combobox = screen.getByRole("combobox", { name: "Currency" });
+    fireEvent.keyDown(combobox, { key: "ArrowDown" });
+    expect(combobox).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("option", { name: "USD" })).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole("option", { name: "USD" }), { key: "ArrowDown" });
+    expect(screen.getByRole("option", { name: "EUR" })).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole("option", { name: "EUR" }), { key: "Enter" });
+    expect(combobox).toHaveTextContent("EUR");
+    expect(combobox).toHaveAttribute("aria-expanded", "false");
+
+    cleanup();
+    render(<Select id="disabled-currency" label="Disabled currency" disabled><option value="usd">USD</option></Select>);
+    expect(screen.getByRole("combobox", { name: "Disabled currency" })).toBeDisabled();
   });
 
   it("supports an accessible leading icon on Select", () => {

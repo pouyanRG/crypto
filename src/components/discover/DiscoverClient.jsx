@@ -49,12 +49,12 @@ function TabButton({ active, children, onClick, id, icon }) {
       onClick={onClick}
       className={clsx(
         icon
-          ? "inline-flex min-h-10 w-full items-center justify-start gap-2 rounded-[var(--radius-card)] border px-2.5 py-2 text-xs font-medium transition-[background-color,border-color,color,box-shadow] duration-200 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:w-auto sm:gap-3 sm:px-4 sm:text-sm"
+          ? "inline-flex h-11 min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-card)] border px-2.5 py-2 text-xs font-medium transition-[background-color,border-color,color,box-shadow] duration-200 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] sm:w-[150px] sm:gap-3 sm:px-4 sm:text-sm"
           : "min-h-11 rounded-[var(--radius-md)] border px-4 py-2 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-200 ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
         icon
           ? active
             ? "border-transparent bg-[var(--color-surface-hover)] text-[var(--color-text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-            : "border-transparent bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
+            : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
           : active
             ? "border-[var(--color-accent)]/35 bg-[var(--color-accent-muted)] text-[var(--color-accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
             : "border-transparent bg-transparent text-[var(--color-text-secondary)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]",
@@ -103,7 +103,7 @@ function ExchangesPanel({ query }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <DiscoverStatCard icon="bank" value={isError ? "—" : formatCompact(data.length)} label="Exchanges tracked" loading={isLoading} />
         <DiscoverStatCard icon="barChart" value={isError || !data.length ? "—" : `${formatCompact(combinedVolume)} BTC`} label="24h trading volume" loading={isLoading} />
         <DiscoverStatCard icon="shieldCheck" value={averageTrustScore == null ? "—" : `${averageTrustScore.toFixed(1)}/10`} label="Average trust score" loading={isLoading} />

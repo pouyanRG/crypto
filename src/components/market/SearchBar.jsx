@@ -19,7 +19,7 @@ export default function SearchBar({ value, onChange, placeholder = "Search coins
         leadingIcon={<SearchIcon />}
         appearance="polished"
         placeholder={placeholder}
-        className="min-h-11 rounded-[var(--radius-lg)] bg-[var(--color-surface)] text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] placeholder:text-[var(--color-text-secondary)] hover:border-[var(--color-text-muted)] active:border-[var(--color-accent)]"
+        className="min-h-11 rounded-[var(--radius-lg)] bg-[var(--color-surface)] text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] placeholder:text-[var(--color-text-secondary)] hover:border-[var(--color-text-muted)]"
       />
     </div>
   );
