@@ -826,6 +826,7 @@ button:disabled {
   margin: 0;
   display: flex;
   flex-direction: column;
+  font-family: var(--font-display), var(--font-sans), sans-serif;
   font-size: clamp(2.1rem, 9vw, 3.25rem);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
@@ -840,6 +841,7 @@ button:disabled {
 .market-hero-subtitle {
   margin: 0;
   max-width: 34rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 1rem;
   line-height: 1.6;
   color: var(--color-text-secondary);
@@ -976,6 +978,35 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+@media (max-width: 639px) {
+  .market-hero {
+    margin-block-start: -0.5rem;
+    gap: 0.625rem;
+  }
+
+  .market-hero-copy {
+    gap: 0.875rem;
+  }
+
+  .market-hero-title {
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  .market-hero-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 359px) {
+  .market-hero-pulse {
+    grid-template-areas:
+      "icon label arrow"
+      "stat stat stat";
+  }
 }
 
 @media (min-width: 1024px) {
